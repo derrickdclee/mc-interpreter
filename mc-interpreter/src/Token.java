@@ -1,9 +1,8 @@
+/**
+ * This class is a container for a token that gets inserted into the symbol table.
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ */
 
-enum Type {
-		VARIABLE, INTEGER, BEGIN, HALT, CAT, MOUSE, CLOCKWISE, MOVE, 
-		NORTH, SOUTH, EAST, WEST, HOLE, REPEAT, SIZE, END, SEMICOLON
-	}
-	
 class Token {
 	private Type tokenType;
 	private String charVal;

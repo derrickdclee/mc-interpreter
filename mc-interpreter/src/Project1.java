@@ -34,9 +34,8 @@ public class Project1 {
 	}
 	
 	/**
-	 * This method is the only public method in the class and 
-	 * adds a string to the symbol table if possible. This is the only
-	 * public method in the class.
+	 * This method adds a string to the symbol table if possible. 
+	 * This is the only public method in the class.
 	 * @param str	string to be added to the symbol table if possible
 	 * @return 		Token object if the string is inserted into the table or 
 	 * 				is already present in the table; null otherwise
@@ -123,11 +122,12 @@ public class Project1 {
 	/**
 	 * This method prints the output of processing each string.
 	 * @param token	Token object associated with the string
+	 * @param unlowercasedStr	un-lowercased, original string for error messages
 	 * @param lineNum	the line number from which the string came
 	 */
-	private void printOutput(Token token, int lineNum) {
+	private void printOutput(Token token, String unlowercasedStr, int lineNum) {
 		if (token == null) {
-			System.out.printf("=> Invalid token on line %d", lineNum);
+			System.out.printf("=> Invalid token on line %d: [ %s ]", lineNum, unlowercasedStr);
 			System.out.println();
 		} else {
 			System.out.printf("%-15s%-15s%-15d", token.getTokenType(), token.getCharVal(), token.getIntVal());
@@ -221,6 +221,33 @@ public class Project1 {
 		return word.equals("//");
 	}
 		
+	/**
+	 * This method is used in the main method to process each line read by the buffered reader.
+	 * @param line	line read by buffered reader
+	 * @param lineNum	line number
+	 */
+	public void process(String line, int lineNum) {
+		// split the line on whitspaces and process each resulting string
+		String[] words = line.trim().split("\\s+");
+		for (String word: words) {
+			String loWord = word.toLowerCase();
+			if (this.isStartOfComment(loWord)) {
+				break;
+			}
+			
+			Token result = this.addToSymbolTable(loWord);
+			if (result == null) {
+				List<String> correction = this.suggestCorrection(loWord);
+				if (correction != null) {
+					this.printCorrection(correction, lineNum);
+					continue;
+				}
+			} 
+			// either when there is a valid token, or when the correction failed
+			this.printOutput(result, word, lineNum);
+		}
+	}
+	
 	/*
 	 * The main method
 	 */
@@ -233,14 +260,15 @@ public class Project1 {
 		scanner.close();
 		
 		// assumes that test cases are in a directory named "tests" within the parent directory
-		File f = new File("./../tests/" + fileName);
+		File f = new File("./tests/" + fileName);
 		String line = null;
 		
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
-			int lineNum = 1;
-			System.out.println("TYPE           CH VALUE       INT VALUE"); // 7 3
+			System.out.println("TYPE           CH VALUE       INT VALUE");
 			System.out.println("====           ========       =========");
+			
+			int lineNum = 1;
 			while ( (line = bufferedReader.readLine()) != null) {
 				// to handle lines with newline characters or whitespaces only
 				if (line.isEmpty() || line.matches("\\s+")) {
@@ -248,25 +276,7 @@ public class Project1 {
 					continue;
 				}
 				
-				// split the line on whitspaces and process each resulting string
-				String[] words = line.trim().split("\\s+");
-				for (String word: words) {
-					String loWord = word.toLowerCase();
-					if (obj.isStartOfComment(loWord)) {
-						break;
-					}
-					
-					Token result = obj.addToSymbolTable(loWord);
-					if (result == null) {
-						List<String> correction = obj.suggestCorrection(loWord);
-						if (correction != null) {
-							obj.printCorrection(correction, lineNum);
-							continue;
-						}
-					} 
-					// either when there is a valid token, or when the correction failed
-					obj.printOutput(result, lineNum);
-				}
+				obj.process(line, lineNum);
 				lineNum++;
 			}
 			bufferedReader.close();

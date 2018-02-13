@@ -127,10 +127,11 @@ public class Project1 {
 	 */
 	private void printOutput(Token token, int lineNum) {
 		if (token == null) {
-			System.out.printf("Invalid token on line %d", lineNum);
+			System.out.printf("=> Invalid token on line %d", lineNum);
 			System.out.println();
 		} else {
-			System.out.println(token.getTokenType() + " " + token.getCharVal() + " " + token.getIntVal());
+			System.out.printf("%-15s%-15s%-15d", token.getTokenType(), token.getCharVal(), token.getIntVal());
+			System.out.println();
 		}
 	}
 	
@@ -189,7 +190,7 @@ public class Project1 {
 	 * @param lineNum	the line number from which the initial invalid token came from
 	 */
 	private void printCorrection(List<String> correction, int lineNum) {
-		StringBuilder sb = new StringBuilder("Did you mean to type: [ ");
+		StringBuilder sb = new StringBuilder("=> Did you mean to type: [ ");
 		for (String s: correction) {
 			if (!s.isEmpty()) {
 				sb.append(s);
@@ -238,6 +239,8 @@ public class Project1 {
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
 			int lineNum = 1;
+			System.out.println("TYPE           CH VALUE       INT VALUE"); // 7 3
+			System.out.println("====           ========       =========");
 			while ( (line = bufferedReader.readLine()) != null) {
 				// to handle lines with newline characters or whitespaces only
 				if (line.isEmpty() || line.matches("\\s+")) {
@@ -245,6 +248,7 @@ public class Project1 {
 					continue;
 				}
 				
+				// split the line on whitspaces and process each resulting string
 				String[] words = line.trim().split("\\s+");
 				for (String word: words) {
 					String loWord = word.toLowerCase();

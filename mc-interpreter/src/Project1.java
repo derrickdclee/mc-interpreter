@@ -140,16 +140,16 @@ public class Project1 {
 	 * tries to identify possible corrections that will render the invalid token valid. 
 	 * It does so by 1) trying to insert one whitespace somewhere in the string, 
 	 * and then 2) trying to remove one character somewhere from the string.
-	 * @param invalidToken	string that was determined to be invalid
+	 * @param invalid	string that was determined to be invalid
 	 * @return	List of valid tokens that result from the correction; null if such correction 
 	 * 			cannot be found
 	 */
-	private List<String> suggestCorrection(String invalidToken) {
-		if (invalidToken.length() == 1) {
+	private List<String> suggestCorrection(String invalid) {
+		if (invalid.length() == 1) {
 			return null;
 		}
 		
-		int len = invalidToken.length();
+		int len = invalid.length();
 		String first = null;
 		String second = null;
 		List<String> result = new ArrayList<>();
@@ -158,8 +158,8 @@ public class Project1 {
 		 * try to insert a whitespace
 		 */
 		for (int i=1; i <= len - 1; i++) {
-			first = invalidToken.substring(0, i);
-			second = invalidToken.substring(i);
+			first = invalid.substring(0, i);
+			second = invalid.substring(i);
 			if (this.isValidToken(first) && this.isValidToken(second)) {
 				result.add(first);
 				result.add(second);
@@ -171,8 +171,8 @@ public class Project1 {
 		 * try to remove a character
 		 */
 		for (int j=0; j < len; j++) {
-			first = invalidToken.substring(0, j);
-			second = invalidToken.substring(j + 1);
+			first = invalid.substring(0, j);
+			second = invalid.substring(j + 1);
 			if ( (first.isEmpty() || this.isValidToken(first)) && 
 					(second.isEmpty() || this.isValidToken(second)) ) {
 				result.add(first);

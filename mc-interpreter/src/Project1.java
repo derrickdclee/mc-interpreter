@@ -13,41 +13,42 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
+import java.util.Scanner;
+
 
 public class Project1 {
 	private Map<String, Token> symbolTable;
 	private Set<String> keywordSet;
-	
+
 	/**
 	 * Constructor for the class. Initializes the symbol table and the set of keywords
 	 */
 	public Project1() {
 		this.symbolTable = new HashMap<>();
-		
+
 		this.keywordSet = new HashSet<>();
-		String[] keywords = new String[] {"begin", "halt", "cat", "mouse", "clockwise", "move", 
+		String[] keywords = new String[] {"begin", "halt", "cat", "mouse", "clockwise", "move",
 				"north", "south", "east", "west", "hole", "repeat", "size", "end"};
-		
+
 		keywordSet.addAll(Arrays.asList(keywords));
 	}
-	
+
 	/**
-	 * This method adds a string to the symbol table if possible. 
+	 * This method adds a string to the symbol table if possible.
 	 * This is the only public method in the class.
 	 * @param str	string to be added to the symbol table if possible
-	 * @return 		Token object if the string is inserted into the table or 
+	 * @return 		Token object if the string is inserted into the table or
 	 * 				is already present in the table; null otherwise
 	 */
 	public Token addToSymbolTable(String str) {
 		if (this.symbolTable.containsKey(str)) {
 			return this.symbolTable.get(str);
 		}
-		
+
 		Type tokenType = this.determineType(str);
 		Token result = null;
-		
+
 		if (tokenType == null) {
 			return null;
 		} else if (tokenType == Type.INTEGER) {
@@ -60,10 +61,10 @@ public class Project1 {
 			// either a keyword, or a punctuation
 			result = new Token(tokenType, null, null);
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * This method determines if a given word forms a valid token.
 	 * @param str	string to be tested
@@ -72,7 +73,7 @@ public class Project1 {
 	private boolean isValidToken(String str) {
 		return determineType(str) != null;
 	}
-	
+
 	/**
 	 * This method determines the Type of a given string.
 	 * @param str	string to be tested
@@ -81,8 +82,8 @@ public class Project1 {
 	private Type determineType(String str) {
 		/*
 		 * What cases are there?
-		 * 1. Keyword 
-		 * 2. Variable : any number of letters and digits; if the length is 3 or less, 
+		 * 1. Keyword
+		 * 2. Variable : any number of letters and digits; if the length is 3 or less,
 		 * it must have at least one letter
 		 * 3. Integer : up to three digits; if starts with 0, then must be of length 1
 		 * 4. Semicolon
@@ -115,10 +116,10 @@ public class Project1 {
 		} else if ( str.equals(";") ) {
 			return Type.SEMICOLON;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * This method prints the output of processing each string.
 	 * @param token	Token object associated with the string
@@ -134,26 +135,26 @@ public class Project1 {
 			System.out.println();
 		}
 	}
-	
+
 	/**
 	 * This method, when invoked on a string that was determined to be an invalid token,
-	 * tries to identify possible corrections that will render the invalid token valid. 
-	 * It does so by 1) trying to insert one whitespace somewhere in the string, 
+	 * tries to identify possible corrections that will render the invalid token valid.
+	 * It does so by 1) trying to insert one whitespace somewhere in the string,
 	 * and then 2) trying to remove one character somewhere from the string.
 	 * @param invalid	string that was determined to be invalid
-	 * @return	List of valid tokens that result from the correction; null if such correction 
+	 * @return	List of valid tokens that result from the correction; null if such correction
 	 * 			cannot be found
 	 */
 	private List<String> suggestCorrection(String invalid) {
 		if (invalid.length() == 1) {
 			return null;
 		}
-		
+
 		int len = invalid.length();
 		String first = null;
 		String second = null;
 		List<String> result = new ArrayList<>();
-		
+
 		/*
 		 * try to insert a whitespace
 		 */
@@ -166,24 +167,24 @@ public class Project1 {
 				return result;
 			}
 		}
-		
+
 		/*
 		 * try to remove a character
 		 */
 		for (int j=0; j < len; j++) {
 			first = invalid.substring(0, j);
 			second = invalid.substring(j + 1);
-			if ( (first.isEmpty() || this.isValidToken(first)) && 
+			if ( (first.isEmpty() || this.isValidToken(first)) &&
 					(second.isEmpty() || this.isValidToken(second)) ) {
 				result.add(first);
 				result.add(second);
 				return result;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * This method prints out the suggested corrections that suggestCorrection() generates.
 	 * @param correction	List of valid tokens resulting from correcting an invalid token
@@ -202,7 +203,7 @@ public class Project1 {
 		sb.append("?");
 		System.out.println(sb.toString());
 	}
-	
+
 	/**
 	 * This method determines if a given string is a keyword.
 	 * @param word	string to be tested if it is a keyword
@@ -211,7 +212,7 @@ public class Project1 {
 	private boolean isKeyword(String word) {
 		return this.keywordSet.contains(word);
 	}
-	
+
 	/**
 	 * This method determines if a given string indicates the start of an in-line comment.
 	 * @param word	string to be tested
@@ -220,7 +221,7 @@ public class Project1 {
 	private boolean isStartOfComment(String word) {
 		return word.equals("//");
 	}
-		
+
 	/**
 	 * This method is used in the main method to process each line read by the buffered reader.
 	 * @param line	line read by buffered reader
@@ -234,7 +235,7 @@ public class Project1 {
 			if (this.isStartOfComment(loWord)) {
 				break;
 			}
-			
+
 			Token result = this.addToSymbolTable(loWord);
 			if (result == null) {
 				List<String> correction = this.suggestCorrection(loWord);
@@ -242,32 +243,32 @@ public class Project1 {
 					this.printCorrection(correction, lineNum);
 					continue;
 				}
-			} 
+			}
 			// either when there is a valid token, or when the correction failed
 			this.printOutput(result, word, lineNum);
 		}
 	}
-	
+
 	/*
 	 * The main method
 	 */
 	public static void main(String[] args) {
 		Project1 obj = new Project1();
-		
+
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Enter the name of MOUSEYCAT program you want to read: ");
 		String fileName = scanner.next();
 		scanner.close();
-		
+
 		// assumes that test cases are in a directory named "tests" within the parent directory
 		File f = new File("./tests/" + fileName);
 		String line = null;
-		
+
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
 			System.out.println("TYPE           CH VALUE       INT VALUE");
 			System.out.println("====           ========       =========");
-			
+
 			int lineNum = 1;
 			while ( (line = bufferedReader.readLine()) != null) {
 				// to handle lines with newline characters or whitespaces only
@@ -275,7 +276,7 @@ public class Project1 {
 					lineNum++;
 					continue;
 				}
-				
+
 				obj.process(line, lineNum);
 				lineNum++;
 			}

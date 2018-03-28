@@ -13,20 +13,22 @@ import java.util.Map;
  * @author Derrick Lee <derrickdclee@gmail.com>
  */
 public class Parser {
-	private String[][] parseTable;
 	private final int NUM_STATES = 38;
 	private final int NUM_TERMINALS = 18;
 	private final int NUM_VARS = 4;
+	private final int NUM_RULES = 15;
+	
 	private final String P = "_PROGRAM";
 	private final String L = "_LIST";
 	private final String S = "_STATEMENT";
 	private final String D = "_DIRECTION";
-	private final Map<String, Integer> stringToColNumMap = new HashMap<>();
+	
+	private String[][] parseTable = new String[NUM_STATES][NUM_TERMINALS + NUM_VARS];
+	private Map<String, Integer> stringToColNumMap = new HashMap<>();
+	private String[][] ruleMap = new String[NUM_RULES][2];
 	
 	public Parser() {
 		// build parse table
-		this.parseTable = new String[NUM_STATES][NUM_TERMINALS + NUM_VARS];
-		
 		File f = new File("./parsedata/parsedata.txt");
 		String line = null;
 		
@@ -80,6 +82,23 @@ public class Parser {
 		this.stringToColNumMap.put("_LIST", 19);
 		this.stringToColNumMap.put("_STATEMENT", 20);
 		this.stringToColNumMap.put("_DIRECTION", 21);
+		
+		// build ruleMap
+		ruleMap[1] = new String[] {Integer.toString(6), P};
+		ruleMap[2] = new String[] {Integer.toString(2), L};
+		ruleMap[3] = new String[] {Integer.toString(3), L};
+		ruleMap[4] = new String[] {Integer.toString(5), S};
+		ruleMap[5] = new String[] {Integer.toString(5), S};
+		ruleMap[6] = new String[] {Integer.toString(3), S};
+		ruleMap[7] = new String[] {Integer.toString(2), S};
+		ruleMap[8] = new String[] {Integer.toString(3), S};
+		ruleMap[9] = new String[] {Integer.toString(2), S};
+		ruleMap[10] = new String[] {Integer.toString(4), S};
+		ruleMap[11] = new String[] {Integer.toString(1), D};
+		ruleMap[12] = new String[] {Integer.toString(1), D};
+		ruleMap[13] = new String[] {Integer.toString(1), D};
+		ruleMap[14] = new String[] {Integer.toString(1), D};
+
 	}
 	
 	public void printParseTable() {
@@ -112,9 +131,11 @@ public class Parser {
 		return Integer.parseInt(entry.replaceAll("\\D+", ""));
 	}
 	
-	public void parse(Iterator<Token> it) {
+	public void parse(Iterator<Token> it) throws ParsingException {
 		Deque<String> symbolStack = new LinkedList<>();
 		int state = 0;
+		int rule = -1;
+		
 		symbolStack.addLast(Integer.toString(state));
 		String symbol = null;
 		String entry = null;
@@ -131,12 +152,36 @@ public class Parser {
 				symbolStack.addLast(Integer.toString(state));
 				symbol = it.next().getTokenType().name();
 			} else if (action == Action.REDUCE) {
-				
+				rule = this.getEntryNumber(entry);
+				int rhsSize = Integer.parseInt(this.ruleMap[rule][0]);
+				for (int i=0; i < 2*rhsSize; i++) {symbolStack.removeLast();}
+				state = Integer.parseInt(symbolStack.peekLast());
+				String lhs = this.ruleMap[rule][1];
+				symbolStack.addLast(lhs);
+				state = Integer.parseInt(this.parseTable[state][this.getColumnNumber(lhs)]);
+				symbolStack.addLast(Integer.toString(state));
 			} else if (action == Action.ERROR) {
-				
+				throw new ParsingException("This is not a valid MC program.");
 			}
 			entry = this.parseTable[state][this.getColumnNumber(symbol)];
 		} 
+		
+		if (!symbol.equals("EOF")) {
+			throw new ParsingException("This is not a valid MC program.");
+		}
+		
+		System.out.println("Success!");
 	}
 
+}
+
+class ParsingException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ParsingException(String s) {
+		super(s);
+	}
 }

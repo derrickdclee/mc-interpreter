@@ -4,13 +4,11 @@
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +20,6 @@ public class TokenScanner implements Iterable<Token> {
 	private Map<String, Token> symbolTable;
 	private List<Token> tokenCollection;
 	private Set<String> keywordSet;
-	private boolean complete;
 	private boolean hasInvalidToken;
 
 	/**
@@ -35,8 +32,7 @@ public class TokenScanner implements Iterable<Token> {
 		String[] keywords = new String[] {"begin", "halt", "cat", "mouse", "clockwise", "move",
 				"north", "south", "east", "west", "hole", "repeat", "size", "end"};
 
-		keywordSet.addAll(Arrays.asList(keywords));
-		this.complete = false;
+		this.keywordSet.addAll(Arrays.asList(keywords));
 		this.hasInvalidToken = false;
 	}
 
@@ -47,18 +43,15 @@ public class TokenScanner implements Iterable<Token> {
 	 * @return 		Token object if the string is inserted into the table or
 	 * 				is already present in the table; null otherwise
 	 */
-	public Token addToSymbolTable(String str) {
+	public Token addToSymbolTable(String str, Type tokenType) {
 		if (this.symbolTable.containsKey(str)) {
-			this.tokenCollection.add(this.symbolTable.get(str));
 			return this.symbolTable.get(str);
 		}
 
-		Type tokenType = this.determineType(str);
 		Token result = null;
 
 		if (tokenType == null) {
-			this.hasInvalidToken = true;
-			return null;
+			return result;
 		} else if (tokenType == Type.INTEGER) {
 			result = new Token(tokenType, str, Integer.parseInt(str));
 			this.symbolTable.put(str, result);
@@ -69,10 +62,13 @@ public class TokenScanner implements Iterable<Token> {
 			result = new Token(tokenType, null, null); // either a keyword, or a punctuation
 		}
 
-		this.tokenCollection.add(result); // any valid token gets added
 		return result;
 	}
-
+	
+	public void addToTokenCollection(Token token) {
+		this.tokenCollection.add(token);
+	}
+	
 	/**
 	 * This method determines if a given word forms a valid token.
 	 * @param str	string to be tested
@@ -236,55 +232,54 @@ public class TokenScanner implements Iterable<Token> {
 	 * @param lineNum	line number
 	 */
 	public void processLine(String line, int lineNum) {
-		// split the line on whitspaces and process each resulting string
+		// split the line on white spaces and process each resulting string
 		String[] words = line.trim().split("\\s+");
+		
 		for (String word: words) {
 			String loWord = word.toLowerCase();
 			if (this.isStartOfComment(loWord)) {
 				break;
 			}
 
-			Token result = this.addToSymbolTable(loWord);
-			if (result == null) {
+			Type tokenType = this.determineType(loWord);
+			Token result = null;
+		
+			if (tokenType != null) {
+				result = this.addToSymbolTable(loWord, tokenType);
+				this.addToTokenCollection(result);
+			} else {
+				this.hasInvalidToken = true;
 				List<String> correction = this.suggestCorrection(loWord);
 				if (correction != null) {
 					this.printCorrection(correction, lineNum);
 					continue;
 				}
-			}
+			}			
 			// either when there is a valid token, or when the correction failed
 			this.printOutput(result, word, lineNum);
 		}
 	}
 	
-	public void scanFile(File f) {
+	public void scanFile(File f) throws IOException {
 		String line = null;
 
-		try {
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
-			System.out.println("TYPE           CH VALUE       INT VALUE");
-			System.out.println("====           ========       =========");
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
+		System.out.println("TYPE           CH VALUE       INT VALUE");
+		System.out.println("====           ========       =========");
 
-			int lineNum = 1;
-			while ( (line = bufferedReader.readLine()) != null) {
-				// to handle lines with newline characters or white spaces only
-				if (line.isEmpty() || line.matches("\\s+")) {
-					lineNum++;
-					continue;
-				}
-
-				this.processLine(line, lineNum);
+		int lineNum = 1;
+		while ( (line = bufferedReader.readLine()) != null) {
+			// to handle lines with newline characters or white spaces only
+			if (line.isEmpty() || line.matches("\\s+")) {
 				lineNum++;
+				continue;
 			}
-			this.tokenCollection.add(new Token(Type.EOF, null, null)); // adding end of file marker
-			this.printCollectionContents(this.tokenCollection);
-			this.complete = true;
-			bufferedReader.close();
-		} catch (FileNotFoundException e) {
-			System.out.println("There is no such file.");
-		} catch (IOException e) {
-			System.out.println("Error reading the file... ");
+
+			this.processLine(line, lineNum);
+			lineNum++;
 		}
+		this.tokenCollection.add(new Token(Type.EOF, null, null)); // adding end of file marker
+		bufferedReader.close();
 	}
 
 	public void printCollectionContents(Collection<Token> stack) {
@@ -297,28 +292,43 @@ public class TokenScanner implements Iterable<Token> {
 	
 	@Override
 	public Iterator<Token> iterator() {
-		if (!this.complete && this.hasInvalidToken) {
-			try {
-				throw new NoSuchMethodException();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
-		}
-		return new TokenCollectionIterator();
+		return new TokenCollectionIterator(this.tokenCollection);
 	}
 	
-	private class TokenCollectionIterator implements Iterator<Token> {
-		private int cursor = 0;
-		
-		@Override
-		public boolean hasNext() {
-			return cursor != TokenScanner.this.tokenCollection.size();
+	public Iterator<Token> getIterator() throws InvalidTokenException {
+		if (this.hasInvalidToken) {
+			throw new InvalidTokenException("This token collection is incomplete.");
 		}
+		return this.iterator();
+	}
+}
 
-		@Override
-		public Token next() {
-			return TokenScanner.this.tokenCollection.get(cursor++);
-		}
-		
+class TokenCollectionIterator implements Iterator<Token> {
+	private int cursor = 0;
+	private List<Token> tokenCollection;
+	
+	public TokenCollectionIterator(List<Token> tokenCollection) {
+		this.tokenCollection = tokenCollection;
+	}
+	
+	@Override
+	public boolean hasNext() {
+		return cursor != this.tokenCollection.size();
+	}
+
+	@Override
+	public Token next() {
+		return this.tokenCollection.get(cursor++);
+	}
+}
+
+class InvalidTokenException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public InvalidTokenException(String s) {
+		super(s);
 	}
 }

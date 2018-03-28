@@ -27,37 +27,32 @@ public class Parser {
 	private Map<String, Integer> stringToColNumMap = new HashMap<>();
 	private String[][] ruleMap = new String[NUM_RULES][2];
 	
-	public Parser() {
+	public Parser() throws IOException {
 		// build parse table
 		File f = new File("./parsedata/parsedata.txt");
 		String line = null;
 		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(f));
-			int lineNum = -1;
-			while ( (line = br.readLine()) != null) {
-				if (lineNum == -1 || lineNum == NUM_STATES) {
-				
-				} else if (lineNum < NUM_STATES) {
-					String[] entries = line.split("&", -1); // negative number to retain trailing white spaces
-					for (int i=1; i<entries.length; i++) {
-						this.parseTable[lineNum][i-1] = entries[i].isEmpty()? "err" : entries[i];
-					}
-				} else {
-					String[] entries = line.split("&", -1);
-					for (int i=1; i<entries.length; i++) {
-						this.parseTable[lineNum - (NUM_STATES + 1)][i + (NUM_TERMINALS - 1)] = 
-								entries[i].isEmpty()? "err" : entries[i];
-					}
+		
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		int lineNum = -1;
+		while ( (line = br.readLine()) != null) {
+			if (lineNum == -1 || lineNum == NUM_STATES) {
+			
+			} else if (lineNum < NUM_STATES) {
+				String[] entries = line.split("&", -1); // negative number to retain trailing white spaces
+				for (int i=1; i<entries.length; i++) {
+					this.parseTable[lineNum][i-1] = entries[i].isEmpty()? "err" : entries[i];
 				}
-				lineNum++;
+			} else {
+				String[] entries = line.split("&", -1);
+				for (int i=1; i<entries.length; i++) {
+					this.parseTable[lineNum - (NUM_STATES + 1)][i + (NUM_TERMINALS - 1)] = 
+							entries[i].isEmpty()? "err" : entries[i];
+				}
 			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			lineNum++;
 		}
+		br.close();
 		
 		// build stringToColNumMap
 		this.stringToColNumMap.put("SIZE", 0);
@@ -152,7 +147,6 @@ public class Parser {
 				state = this.getEntryNumber(entry);
 				symbolStack.addLast(Integer.toString(state));
 				symbol = it.next().getTokenType().name();
-				printStackContents(symbolStack);
 			} else if (action == Action.REDUCE) {
 				rule = this.getEntryNumber(entry);
 				int rhsSize = Integer.parseInt(this.ruleMap[rule][0]);
@@ -162,13 +156,10 @@ public class Parser {
 				symbolStack.addLast(lhs);
 				state = Integer.parseInt(this.parseTable[state][this.getColumnNumber(lhs)]);
 				symbolStack.addLast(Integer.toString(state));
-				printStackContents(symbolStack);
 			} else if (action == Action.ERROR) {
 				throw new ParsingException("This is not a valid MC program.");
 			}
 			entry = this.parseTable[state][this.getColumnNumber(symbol)];
-			System.out.println(symbol);
-			System.out.println(entry);
 		} 
 		
 		if (!symbol.equals("EOF")) {

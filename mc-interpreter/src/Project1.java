@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Project1 {
@@ -13,7 +14,11 @@ public class Project1 {
 
 		// assumes that test cases are in a directory named "tests" within the parent directory
 		File f = new File("./tests/" + fileName);
-		scanner.scanFile(f);
+		try {
+			scanner.scanFile(f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

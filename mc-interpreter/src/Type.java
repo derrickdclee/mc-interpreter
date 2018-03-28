@@ -21,5 +21,5 @@ public enum Type {
 		SIZE, 
 		END, 
 		SEMICOLON,
-		EOF
+		EOF // added in project 2 to mark the end of a file
 }

@@ -122,9 +122,10 @@ public class Parser {
 			return Action.SHIFT;
 		} else if (entry.startsWith("acc")) {
 			return Action.ACCEPT;
-		} else {
+		} else if (entry.startsWith("err")) {
 			return Action.ERROR;
 		}
+		return null;
 	}
 	
 	private int getEntryNumber(String entry) {
@@ -151,6 +152,7 @@ public class Parser {
 				state = this.getEntryNumber(entry);
 				symbolStack.addLast(Integer.toString(state));
 				symbol = it.next().getTokenType().name();
+				printStackContents(symbolStack);
 			} else if (action == Action.REDUCE) {
 				rule = this.getEntryNumber(entry);
 				int rhsSize = Integer.parseInt(this.ruleMap[rule][0]);
@@ -160,10 +162,13 @@ public class Parser {
 				symbolStack.addLast(lhs);
 				state = Integer.parseInt(this.parseTable[state][this.getColumnNumber(lhs)]);
 				symbolStack.addLast(Integer.toString(state));
+				printStackContents(symbolStack);
 			} else if (action == Action.ERROR) {
 				throw new ParsingException("This is not a valid MC program.");
 			}
 			entry = this.parseTable[state][this.getColumnNumber(symbol)];
+			System.out.println(symbol);
+			System.out.println(entry);
 		} 
 		
 		if (!symbol.equals("EOF")) {
@@ -173,6 +178,13 @@ public class Parser {
 		System.out.println("Success!");
 	}
 
+	public void printStackContents(Deque<String> stack) {
+		for (String entry: stack) {
+			System.out.print(entry);
+			System.out.print(" ");
+		}
+		System.out.println();
+	}
 }
 
 class ParsingException extends Exception {

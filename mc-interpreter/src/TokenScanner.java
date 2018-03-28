@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,6 +49,7 @@ public class TokenScanner implements Iterable<Token> {
 	 */
 	public Token addToSymbolTable(String str) {
 		if (this.symbolTable.containsKey(str)) {
+			this.tokenCollection.add(this.symbolTable.get(str));
 			return this.symbolTable.get(str);
 		}
 
@@ -274,6 +277,7 @@ public class TokenScanner implements Iterable<Token> {
 				lineNum++;
 			}
 			this.tokenCollection.add(new Token(Type.EOF, null, null)); // adding end of file marker
+			this.printCollectionContents(this.tokenCollection);
 			this.complete = true;
 			bufferedReader.close();
 		} catch (FileNotFoundException e) {
@@ -283,6 +287,14 @@ public class TokenScanner implements Iterable<Token> {
 		}
 	}
 
+	public void printCollectionContents(Collection<Token> stack) {
+		for (Token entry: stack) {
+			System.out.print(entry.getTokenType().name());
+			System.out.print(" ");
+		}
+		System.out.println();
+	}
+	
 	@Override
 	public Iterator<Token> iterator() {
 		if (!this.complete && this.hasInvalidToken) {

@@ -17,6 +17,8 @@ public class Project2 {
 		scanner.scanFile(f);
 		
 		Parser parser = new Parser();
+		parser.printParseTable();
+		
 		try {
 			parser.parse(scanner.iterator());
 		} catch (ParsingException e) {

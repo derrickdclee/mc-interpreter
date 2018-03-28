@@ -13,7 +13,7 @@ public class Project2 {
 		sc.close();
 		
 		// assumes that test cases are in a directory named "tests" within the parent directory
-		File f = new File("./tests/" + fileName);
+		File f = new File("./p2-tests/" + fileName);
 		scanner.scanFile(f);
 		
 		Parser parser = new Parser();
@@ -22,7 +22,6 @@ public class Project2 {
 		try {
 			parser.parse(scanner.iterator());
 		} catch (ParsingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

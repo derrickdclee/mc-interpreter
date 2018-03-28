@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Iterator;
 import java.util.Scanner;
 
 public class Project2 {
@@ -16,6 +17,11 @@ public class Project2 {
 		scanner.scanFile(f);
 		
 		Parser parser = new Parser();
+		parser.parse(scanner.iterator());
+//		Iterator<Token> it = scanner.iterator();
+//		while (it.hasNext()) {
+//			System.out.println(it.next().getTokenType().name());
+//		}
 	}
 
 }

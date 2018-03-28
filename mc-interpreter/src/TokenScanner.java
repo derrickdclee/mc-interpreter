@@ -20,6 +20,8 @@ public class TokenScanner implements Iterable<Token> {
 	private Map<String, Token> symbolTable;
 	private List<Token> tokenCollection;
 	private Set<String> keywordSet;
+	private boolean complete;
+	private boolean hasInvalidToken;
 
 	/**
 	 * Constructor for the class. Initializes the symbol table and the set of keywords
@@ -32,6 +34,8 @@ public class TokenScanner implements Iterable<Token> {
 				"north", "south", "east", "west", "hole", "repeat", "size", "end"};
 
 		keywordSet.addAll(Arrays.asList(keywords));
+		this.complete = false;
+		this.hasInvalidToken = false;
 	}
 
 	/**
@@ -50,6 +54,7 @@ public class TokenScanner implements Iterable<Token> {
 		Token result = null;
 
 		if (tokenType == null) {
+			this.hasInvalidToken = true;
 			return null;
 		} else if (tokenType == Type.INTEGER) {
 			result = new Token(tokenType, str, Integer.parseInt(str));
@@ -268,6 +273,8 @@ public class TokenScanner implements Iterable<Token> {
 				this.processLine(line, lineNum);
 				lineNum++;
 			}
+			this.tokenCollection.add(new Token(Type.EOF, null, null)); // adding end of file marker
+			this.complete = true;
 			bufferedReader.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("There is no such file.");
@@ -278,6 +285,13 @@ public class TokenScanner implements Iterable<Token> {
 
 	@Override
 	public Iterator<Token> iterator() {
+		if (!this.complete && this.hasInvalidToken) {
+			try {
+				throw new NoSuchMethodException();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
 		return new TokenCollectionIterator();
 	}
 	

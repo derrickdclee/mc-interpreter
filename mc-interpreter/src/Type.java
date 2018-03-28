@@ -20,5 +20,6 @@ public enum Type {
 		REPEAT, 
 		SIZE, 
 		END, 
-		SEMICOLON
+		SEMICOLON,
+		EOF
 }

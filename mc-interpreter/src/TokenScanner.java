@@ -2,16 +2,23 @@
  * @author Derrick Lee <derrickdclee@gmail.com>
  */
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TokenScanner {
+public class TokenScanner implements Iterable<Token> {
 	private Map<String, Token> symbolTable;
+	private List<Token> tokenCollection;
 	private Set<String> keywordSet;
 
 	/**
@@ -19,7 +26,7 @@ public class TokenScanner {
 	 */
 	public TokenScanner() {
 		this.symbolTable = new HashMap<>();
-
+		this.tokenCollection = new ArrayList<>();
 		this.keywordSet = new HashSet<>();
 		String[] keywords = new String[] {"begin", "halt", "cat", "mouse", "clockwise", "move",
 				"north", "south", "east", "west", "hole", "repeat", "size", "end"};
@@ -51,10 +58,10 @@ public class TokenScanner {
 			result = new Token(tokenType, str, 0);
 			this.symbolTable.put(str, result);
 		} else {
-			// either a keyword, or a punctuation
-			result = new Token(tokenType, null, null);
+			result = new Token(tokenType, null, null); // either a keyword, or a punctuation
 		}
 
+		this.tokenCollection.add(result); // any valid token gets added
 		return result;
 	}
 
@@ -220,7 +227,7 @@ public class TokenScanner {
 	 * @param line	line read by buffered reader
 	 * @param lineNum	line number
 	 */
-	public void process(String line, int lineNum) {
+	public void processLine(String line, int lineNum) {
 		// split the line on whitspaces and process each resulting string
 		String[] words = line.trim().split("\\s+");
 		for (String word: words) {
@@ -240,5 +247,52 @@ public class TokenScanner {
 			// either when there is a valid token, or when the correction failed
 			this.printOutput(result, word, lineNum);
 		}
+	}
+	
+	public void scanFile(File f) {
+		String line = null;
+
+		try {
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
+			System.out.println("TYPE           CH VALUE       INT VALUE");
+			System.out.println("====           ========       =========");
+
+			int lineNum = 1;
+			while ( (line = bufferedReader.readLine()) != null) {
+				// to handle lines with newline characters or white spaces only
+				if (line.isEmpty() || line.matches("\\s+")) {
+					lineNum++;
+					continue;
+				}
+
+				this.processLine(line, lineNum);
+				lineNum++;
+			}
+			bufferedReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("There is no such file.");
+		} catch (IOException e) {
+			System.out.println("Error reading the file... ");
+		}
+	}
+
+	@Override
+	public Iterator<Token> iterator() {
+		return new TokenCollectionIterator();
+	}
+	
+	private class TokenCollectionIterator implements Iterator<Token> {
+		private int cursor = 0;
+		
+		@Override
+		public boolean hasNext() {
+			return cursor != TokenScanner.this.tokenCollection.size();
+		}
+
+		@Override
+		public Token next() {
+			return TokenScanner.this.tokenCollection.get(cursor++);
+		}
+		
 	}
 }

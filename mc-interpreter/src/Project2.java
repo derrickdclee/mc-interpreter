@@ -1,11 +1,21 @@
+import java.io.File;
+import java.util.Scanner;
 
 public class Project2 {
 
 	public static void main(String[] args) {
-		Parser parser = new Parser();
-		
 		TokenScanner scanner = new TokenScanner();
 		
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the name of MOUSEYCAT program you want to read: ");
+		String fileName = sc.next();
+		sc.close();
+		
+		// assumes that test cases are in a directory named "tests" within the parent directory
+		File f = new File("./tests/" + fileName);
+		scanner.scanFile(f);
+		
+		Parser parser = new Parser();
 	}
 
 }

@@ -5,9 +5,7 @@ import java.util.Scanner;
 
 public class Project2 {
 
-	public static void main(String[] args) {
-		TokenScanner scanner = new TokenScanner();
-		
+	public static void main(String[] args) {		
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter the name of MOUSEYCAT program you want to read: ");
 		String fileName = sc.next();
@@ -16,7 +14,8 @@ public class Project2 {
 		// assumes that test cases are in a directory named "tests" within the parent directory
 		File f = new File("./p2-tests/" + fileName);
 		try {
-			scanner.scanFile(f);
+			TokenScanner scanner = new TokenScanner();
+			scanner.scanInputProgram(f);
 			Parser parser = new Parser();
 			Iterator<Token> it = scanner.getIterator();
 			parser.parse(it);

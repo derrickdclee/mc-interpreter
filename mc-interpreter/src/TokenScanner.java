@@ -260,7 +260,7 @@ public class TokenScanner implements Iterable<Token> {
 		}
 	}
 	
-	public void scanFile(File f) throws IOException {
+	public void scanInputProgram(File f) throws IOException {
 		String line = null;
 
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(f));

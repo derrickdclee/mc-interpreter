@@ -15,7 +15,7 @@ public class Project1 {
 		// assumes that test cases are in a directory named "tests" within the parent directory
 		File f = new File("./tests/" + fileName);
 		try {
-			scanner.scanFile(f);
+			scanner.scanInputProgram(f);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

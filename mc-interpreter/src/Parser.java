@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Deque;
@@ -25,7 +24,7 @@ public class Parser {
 	
 	private String[][] parseTable = new String[NUM_STATES][NUM_TERMINALS + NUM_VARS];
 	private Map<String, Integer> stringToColNumMap = new HashMap<>();
-	private String[][] ruleMap = new String[NUM_RULES][2];
+	private String[][] ruleMap = new String[NUM_RULES][3];
 	
 	public Parser() throws IOException {
 		// build parse table
@@ -79,20 +78,20 @@ public class Parser {
 		this.stringToColNumMap.put("_DIRECTION", 21);
 		
 		// build ruleMap
-		ruleMap[1] = new String[] {Integer.toString(6), P};
-		ruleMap[2] = new String[] {Integer.toString(2), L};
-		ruleMap[3] = new String[] {Integer.toString(3), L};
-		ruleMap[4] = new String[] {Integer.toString(5), S};
-		ruleMap[5] = new String[] {Integer.toString(5), S};
-		ruleMap[6] = new String[] {Integer.toString(3), S};
-		ruleMap[7] = new String[] {Integer.toString(2), S};
-		ruleMap[8] = new String[] {Integer.toString(3), S};
-		ruleMap[9] = new String[] {Integer.toString(2), S};
-		ruleMap[10] = new String[] {Integer.toString(4), S};
-		ruleMap[11] = new String[] {Integer.toString(1), D};
-		ruleMap[12] = new String[] {Integer.toString(1), D};
-		ruleMap[13] = new String[] {Integer.toString(1), D};
-		ruleMap[14] = new String[] {Integer.toString(1), D};
+		ruleMap[1] = new String[] {Integer.toString(6), P, "_Program -> SIZE INTEGER INTEGER BEGIN _LIST HALT"};
+		ruleMap[2] = new String[] {Integer.toString(2), L, "_LIST -> _STATEMENT SEMICOLON"};
+		ruleMap[3] = new String[] {Integer.toString(3), L, "_LIST -> _LIST _STATEMENT SEMICOLON"};
+		ruleMap[4] = new String[] {Integer.toString(5), S, "_STATEMENT -> CAT VARIABLE INTEGER INTEGER _DIRECTION"};
+		ruleMap[5] = new String[] {Integer.toString(5), S, "_STATEMENT -> MOUSE VARIABLE INTEGER INTEGER _DIRECTION"};
+		ruleMap[6] = new String[] {Integer.toString(3), S, "_STATEMENT -> HOLE INTEGER INTEGER"};
+		ruleMap[7] = new String[] {Integer.toString(2), S, "_STATEMENT -> MOVE VARIABLE"};
+		ruleMap[8] = new String[] {Integer.toString(3), S, "_STATEMENT -> MOVE VARIABLE INTEGER"};
+		ruleMap[9] = new String[] {Integer.toString(2), S, "_STATEMENT -> CLOCKWISE VARIABLE"};
+		ruleMap[10] = new String[] {Integer.toString(4), S, "_STATEMENT -> REPEAT INTEGER _LIST END"};
+		ruleMap[11] = new String[] {Integer.toString(1), D, "_DIRECTION -> NORTH"};
+		ruleMap[12] = new String[] {Integer.toString(1), D, "_DIRECTION -> SOUTH"};
+		ruleMap[13] = new String[] {Integer.toString(1), D, "_DIRECTION -> EAST"};
+		ruleMap[14] = new String[] {Integer.toString(1), D, "_DIRECTION -> WEST"};
 
 	}
 	
@@ -129,6 +128,7 @@ public class Parser {
 	
 	public void parse(Iterator<Token> it) throws ParsingException {
 		Deque<String> symbolStack = new LinkedList<>();
+		Deque<Integer> ruleStack = new LinkedList<>();
 		int state = 0;
 		int rule = -1;
 		
@@ -149,6 +149,7 @@ public class Parser {
 				symbol = it.next().getTokenType().name();
 			} else if (action == Action.REDUCE) {
 				rule = this.getEntryNumber(entry);
+				ruleStack.addLast(rule); // for printing purposes
 				int rhsSize = Integer.parseInt(this.ruleMap[rule][0]);
 				for (int i=0; i < 2*rhsSize; i++) {symbolStack.removeLast();}
 				state = Integer.parseInt(symbolStack.peekLast());
@@ -166,9 +167,18 @@ public class Parser {
 			throw new ParsingException("This is not a valid MC program.");
 		}
 		
-		System.out.println("Success!");
+		this.printProductionRules(ruleStack);
+		System.out.println("Parsed successfully!");
 	}
 
+	public void printProductionRules(Deque<Integer> ruleStack) {
+		Iterator<Integer> reverseIt = ruleStack.descendingIterator();
+		
+		while (reverseIt.hasNext()) {
+			System.out.println(this.ruleMap[reverseIt.next()][2]);
+		}
+	}
+	
 	public void printStackContents(Deque<String> stack) {
 		for (String entry: stack) {
 			System.out.print(entry);

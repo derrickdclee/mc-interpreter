@@ -21,4 +21,4 @@ public enum Type {
 		SIZE, 
 		END, 
 		SEMICOLON
-	}
+}

@@ -27,6 +27,9 @@ public class Parser {
 	private static Map<String, Integer> stringToColNumMap = new HashMap<>();
 	private static String[][] ruleMap = new String[NUM_RULES][3];
 	
+	private Deque<String> symbolStack;
+	private Deque<Integer> ruleStack;
+	
 	/**
 	 * Initialization of static fields
 	 */
@@ -40,7 +43,13 @@ public class Parser {
 		Parser.buildRuleMap();
 	}
 	
-	public Parser() {}
+	/**
+	 * Constructor for Parser objects
+	 */
+	public Parser() {
+		this.symbolStack = new LinkedList<>();
+		this.ruleStack = new LinkedList<>();
+	}
 	
 	/**
 	 * This public method accepts an iterator over Token objects and parses to parse them.
@@ -59,13 +68,11 @@ public class Parser {
 	 * @throws ParsingException    if there is an error
 	 */
 	public void parse(Iterator<Token> it, boolean debug) throws ParsingException {
-		Deque<String> symbolStack = new LinkedList<>();
-		Deque<Integer> ruleStack = new LinkedList<>();
 		int state = 0;
 		int rule = -1;
 		
-		symbolStack.addLast(Integer.toString(state));
-		if (debug) this.printStackContents(symbolStack);
+		this.symbolStack.addLast(Integer.toString(state));
+		if (debug) this.printStackContents(this.symbolStack);
 		
 		String symbol = null;
 		String entry = null;
@@ -78,31 +85,31 @@ public class Parser {
 			
 			if (action == Action.SHIFT) {
 				
-				symbolStack.addLast(symbol);
+				this.symbolStack.addLast(symbol);
 				state = Parser.getEntryNumber(entry);
-				symbolStack.addLast(Integer.toString(state));
+				this.symbolStack.addLast(Integer.toString(state));
 				symbol = it.next().getTokenType().name();
-				if (debug) this.printStackContents(symbolStack);
+				if (debug) this.printStackContents(this.symbolStack);
 				
 			} else if (action == Action.REDUCE) {
 				
 				rule = Parser.getEntryNumber(entry);
-				ruleStack.addLast(rule); // for output
+				this.ruleStack.addLast(rule); // for output
 				int rhsSize = Parser.getRuleRHSSize(rule);
 				for (int i=0; i < 2*rhsSize; i++) {
-					symbolStack.removeLast();
+					this.symbolStack.removeLast();
 				}
 				
-				state = Integer.parseInt(symbolStack.peekLast());
+				state = Integer.parseInt(this.symbolStack.peekLast());
 				String lhs = Parser.getRuleLHS(rule);
-				symbolStack.addLast(lhs);
+				this.symbolStack.addLast(lhs);
 				state = Integer.parseInt(Parser.getParseTableEntry(state, lhs));
-				symbolStack.addLast(Integer.toString(state));
-				if (debug) this.printStackContents(symbolStack);
+				this.symbolStack.addLast(Integer.toString(state));
+				if (debug) this.printStackContents(this.symbolStack);
 				
 			} else if (action == Action.ERROR) {
 				
-				if (debug) this.printStackContents(symbolStack);
+				if (debug) this.printStackContents(this.symbolStack);
 				throw new ParsingException("This is not a valid MC program.");
 				
 			}
@@ -115,7 +122,7 @@ public class Parser {
 			throw new ParsingException("This is not a valid MOUSEYCAT program.");
 		}
 		
-		this.printProductionRules(ruleStack); // prints the rightmost derivations in the correct order
+		this.printProductionRules(this.ruleStack); // prints the rightmost derivations in the correct order
 		System.out.println("Parsed successfully!");
 	}
 	

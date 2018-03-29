@@ -12,7 +12,7 @@ public class Project2 {
 		sc.close();
 		
 		// assumes that test cases are in a directory named "tests" within the parent directory
-		File f = new File("./p2-tests/" + fileName);
+		File f = new File("./tests/p2/" + fileName);
 		try {
 			TokenScanner scanner = new TokenScanner();
 			scanner.scanInputProgram(f);

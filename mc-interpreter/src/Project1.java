@@ -13,7 +13,7 @@ public class Project1 {
 		sc.close();
 
 		// assumes that test cases are in a directory named "tests" within the parent directory
-		File f = new File("./tests/" + fileName);
+		File f = new File("./tests/p1/" + fileName);
 		try {
 			scanner.scanInputProgram(f);
 		} catch (IOException e) {

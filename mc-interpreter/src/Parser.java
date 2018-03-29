@@ -27,6 +27,9 @@ public class Parser {
 	private static Map<String, Integer> stringToColNumMap = new HashMap<>();
 	private static String[][] ruleMap = new String[NUM_RULES][3];
 	
+	/**
+	 * Initialization of static fields
+	 */
 	static {
 		try {
 			Parser.buildParseTable();
@@ -39,6 +42,89 @@ public class Parser {
 	
 	public Parser() {}
 	
+	/**
+	 * This public method accepts an iterator over Token objects and parses to parse them.
+	 * @param it	iterator over Token objects
+	 * @throws ParsingException    if there is an error
+	 */
+	public void parse(Iterator<Token> it) throws ParsingException {
+		this.parse(it, false);
+	}
+	
+	/**
+	 * This public method accepts a second boolean parameter, which if set to true prints the contents of 
+	 * the symbol stack at each step of the parsing process.
+	 * @param it	iterator over Token objects
+	 * @param debug     if true, print stack contents
+	 * @throws ParsingException    if there is an error
+	 */
+	public void parse(Iterator<Token> it, boolean debug) throws ParsingException {
+		Deque<String> symbolStack = new LinkedList<>();
+		Deque<Integer> ruleStack = new LinkedList<>();
+		int state = 0;
+		int rule = -1;
+		
+		symbolStack.addLast(Integer.toString(state));
+		if (debug) this.printStackContents(symbolStack);
+		
+		String symbol = null;
+		String entry = null;
+		
+		symbol = it.next().getTokenType().name();
+		entry = Parser.getParseTableEntry(state, symbol);
+		Action action = null;
+		
+		while ( (action = Parser.getEntryAction(entry)) != Action.ACCEPT) {
+			
+			if (action == Action.SHIFT) {
+				
+				symbolStack.addLast(symbol);
+				state = Parser.getEntryNumber(entry);
+				symbolStack.addLast(Integer.toString(state));
+				symbol = it.next().getTokenType().name();
+				if (debug) this.printStackContents(symbolStack);
+				
+			} else if (action == Action.REDUCE) {
+				
+				rule = Parser.getEntryNumber(entry);
+				ruleStack.addLast(rule); // for output
+				int rhsSize = Parser.getRuleRHSSize(rule);
+				for (int i=0; i < 2*rhsSize; i++) {
+					symbolStack.removeLast();
+				}
+				
+				state = Integer.parseInt(symbolStack.peekLast());
+				String lhs = Parser.getRuleLHS(rule);
+				symbolStack.addLast(lhs);
+				state = Integer.parseInt(Parser.getParseTableEntry(state, lhs));
+				symbolStack.addLast(Integer.toString(state));
+				if (debug) this.printStackContents(symbolStack);
+				
+			} else if (action == Action.ERROR) {
+				
+				if (debug) this.printStackContents(symbolStack);
+				throw new ParsingException("This is not a valid MC program.");
+				
+			}
+			
+			entry = Parser.getParseTableEntry(state, symbol);
+			
+		} 
+		
+		if (!symbol.equals("EOF")) {
+			throw new ParsingException("This is not a valid MOUSEYCAT program.");
+		}
+		
+		this.printProductionRules(ruleStack); // prints the rightmost derivations in the correct order
+		System.out.println("Parsed successfully!");
+	}
+	
+	/**
+	 * This method is used to initialize the static field parseTable, which is implemented as
+	 * a two-dimensional array of strings. Each row corresponds to a state, each column corresponds
+	 * to a terminal/variable.
+	 * @throws IOException
+	 */
 	private static void buildParseTable() throws IOException {
 		File f = new File("./parsedata/parsedata.txt");
 		String line = null;
@@ -65,6 +151,11 @@ public class Parser {
 		br.close();
 	}
 	
+	/**
+	 * This method is used to initialize the static field stringToColNumMap, where K = terminal/variable
+	 * and V = the column number that corresponds to that symbol. Nonterminals have a leading 
+	 * underscore for clarity.
+	 */
 	private static void buildStringToColNumMap() {
 		Parser.stringToColNumMap.put("SIZE", 0);
 		Parser.stringToColNumMap.put("INTEGER", 1);
@@ -90,6 +181,11 @@ public class Parser {
 		Parser.stringToColNumMap.put("_DIRECTION", 21);
 	}
 	
+	/**
+	 * This method is used to initialize the static field ruleMap, implemented as a two-dimensional array of 
+	 * strings, where each row corresponds to a production rule and 0th column = size of the RHS of the rule, 
+	 * 1st column = variable on the LHS of the rule, 2nd column = the full production rule spelled out for output
+	 */
 	private static void buildRuleMap() {
 		Parser.ruleMap[1] = new String[] {Integer.toString(6), P, "_Program -> SIZE INTEGER INTEGER BEGIN _LIST HALT"};
 		Parser.ruleMap[2] = new String[] {Integer.toString(2), L, "_LIST -> _STATEMENT SEMICOLON"};
@@ -106,67 +202,28 @@ public class Parser {
 		Parser.ruleMap[13] = new String[] {Integer.toString(1), D, "_DIRECTION -> EAST"};
 		Parser.ruleMap[14] = new String[] {Integer.toString(1), D, "_DIRECTION -> WEST"};
 	}
-		
-	public void parse(Iterator<Token> it) throws ParsingException {
-		Deque<String> symbolStack = new LinkedList<>();
-		Deque<Integer> ruleStack = new LinkedList<>();
-		int state = 0;
-		int rule = -1;
-		
-		symbolStack.addLast(Integer.toString(state));
-		String symbol = null;
-		String entry = null;
-		
-		// TODO: error handling in case the iterator runs out
-		symbol = it.next().getTokenType().name();
-		entry = Parser.parseTable[state][this.getColumnNumber(symbol)];
-		Action action = null;
-		
-		while ( (action = this.getEntryAction(entry)) != Action.ACCEPT) {
-			if (action == Action.SHIFT) {
-				symbolStack.addLast(symbol);
-				state = this.getEntryNumber(entry);
-				symbolStack.addLast(Integer.toString(state));
-				symbol = it.next().getTokenType().name();
-			} else if (action == Action.REDUCE) {
-				rule = this.getEntryNumber(entry);
-				ruleStack.addLast(rule); // for printing purposes
-				int rhsSize = Integer.parseInt(Parser.ruleMap[rule][0]);
-				for (int i=0; i < 2*rhsSize; i++) {symbolStack.removeLast();}
-				state = Integer.parseInt(symbolStack.peekLast());
-				String lhs = Parser.ruleMap[rule][1];
-				symbolStack.addLast(lhs);
-				state = Integer.parseInt(Parser.parseTable[state][this.getColumnNumber(lhs)]);
-				symbolStack.addLast(Integer.toString(state));
-			} else if (action == Action.ERROR) {
-				throw new ParsingException("This is not a valid MC program.");
-			}
-			entry = Parser.parseTable[state][this.getColumnNumber(symbol)];
-		} 
-		
-		if (!symbol.equals("EOF")) {
-			throw new ParsingException("This is not a valid MC program.");
-		}
-		
-		this.printProductionRules(ruleStack);
-		System.out.println("Parsed successfully!");
+	
+	private static String getParseTableEntry(int state, String symbol) {
+		return Parser.parseTable[state][Parser.getColumnNumber(symbol)];
 	}
 	
-	private void printParseTable() {
-		for (int i=0; i<Parser.parseTable.length; i++) {
-			for (int j=0; j<Parser.parseTable[0].length; j++) {
-				System.out.print(Parser.parseTable[i][j]);
-				System.out.print(" ");
-			}
-			System.out.println();
-		}
+	private static int getRuleRHSSize(int rule) {
+		return Integer.parseInt(Parser.ruleMap[rule][0]);
 	}
 	
-	private int getColumnNumber(String symbol) {
+	private static String getRuleLHS(int rule) {
+		return Parser.ruleMap[rule][1];
+	}
+	
+	private static String getRuleName(int rule) {
+		return Parser.ruleMap[rule][2];
+	}
+	
+	private static int getColumnNumber(String symbol) {
 		return Parser.stringToColNumMap.get(symbol);
 	}
 	
-	private Action getEntryAction(String entry) {
+	private static Action getEntryAction(String entry) {
 		if (entry.startsWith("r")) {
 			return Action.REDUCE;
 		} else if (entry.startsWith("s")) {
@@ -176,10 +233,10 @@ public class Parser {
 		} else if (entry.startsWith("err")) {
 			return Action.ERROR;
 		}
-		return null;
+		return null; // shouldn't reach here
 	}
 	
-	private int getEntryNumber(String entry) {
+	private static int getEntryNumber(String entry) {
 		return Integer.parseInt(entry.replaceAll("\\D+", ""));
 	}
 
@@ -187,7 +244,7 @@ public class Parser {
 		Iterator<Integer> reverseIt = ruleStack.descendingIterator();
 		
 		while (reverseIt.hasNext()) {
-			System.out.println(Parser.ruleMap[reverseIt.next()][2]);
+			System.out.println(Parser.getRuleName(reverseIt.next()));
 		}
 	}
 	

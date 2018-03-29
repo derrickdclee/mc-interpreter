@@ -1,3 +1,7 @@
 RemoteSystemsTempFiles/
 .metadata/
 .recommenders/
+mc-interpreter/.settings/
+mc-interpreter/bin/
+mc-interpreter/.classpath
+mc-interpreter/.project

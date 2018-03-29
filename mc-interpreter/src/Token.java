@@ -4,25 +4,25 @@
  */
 
 class Token {
-	private Type tokenType;
-	private String charVal;
-	private Integer intVal;
+	private Type myTokenType;
+	private String myCharVal;
+	private Integer myIntVal;
 	
 	public Token(Type type, String charVal, Integer intVal) {
-		this.tokenType = type;
-		this.charVal = charVal;
-		this.intVal = intVal;
+		myTokenType = type;
+		myCharVal = charVal;
+		myIntVal = intVal;
 	}
 	
 	public Type getTokenType() {
-		return this.tokenType;
+		return myTokenType;
 	}
 	
 	public String getCharVal() {
-		return this.charVal;
+		return myCharVal;
 	}
 	
 	public Integer getIntVal() {
-		return this.intVal;
+		return myIntVal;
 	}
 }

@@ -18,24 +18,24 @@ import java.util.Set;
 public class TokenScanner implements Iterable<Token> {
 	private static Set<String> keywordSet;
 	
-	private Map<String, Token> symbolTable;
-	private List<Token> tokenCollection;
-	private boolean hasInvalidToken;
+	private Map<String, Token> mySymbolTable;
+	private List<Token> myTokenCollection;
+	private boolean myHasInvalidToken;
 
 	static {
-		keywordSet = new HashSet<>();
+		TokenScanner.keywordSet = new HashSet<>();
 		String[] keywords = new String[] {"begin", "halt", "cat", "mouse", "clockwise", "move",
 				"north", "south", "east", "west", "hole", "repeat", "size", "end"};
-		keywordSet.addAll(Arrays.asList(keywords));
+		TokenScanner.keywordSet.addAll(Arrays.asList(keywords));
 	}
 	
 	/**
 	 * Constructor for the class. Initializes the symbol table and the set of keywords
 	 */
 	public TokenScanner() {
-		this.symbolTable = new HashMap<>();
-		this.tokenCollection = new ArrayList<>();
-		this.hasInvalidToken = false;
+		mySymbolTable = new HashMap<>();
+		myTokenCollection = new ArrayList<>();
+		myHasInvalidToken = false;
 	}
 
 	/**
@@ -58,10 +58,10 @@ public class TokenScanner implements Iterable<Token> {
 				continue;
 			}
 
-			this.processLine(line, lineNum);
+			processLine(line, lineNum);
 			lineNum++;
 		}
-		this.addToTokenCollection(new Token(Type.EOF, null, null)); // adding end of file marker
+		addToTokenCollection(new Token(Type.EOF, null, null)); // adding end of file marker
 		bufferedReader.close();
 	}
 	
@@ -74,10 +74,10 @@ public class TokenScanner implements Iterable<Token> {
 	 * in a program that has invalid tokens
 	 */
 	public Iterator<Token> getIterator() throws InvalidTokenException {
-		if (this.hasInvalidToken) {
+		if (myHasInvalidToken) {
 			throw new InvalidTokenException("This token collection is incomplete.");
 		}
-		return this.iterator();
+		return iterator();
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class TokenScanner implements Iterable<Token> {
 	 */
 	@Override
 	public Iterator<Token> iterator() {
-		return new TokenCollectionIterator(this.tokenCollection);
+		return new TokenCollectionIterator(myTokenCollection);
 	}
 	
 	/**
@@ -99,26 +99,26 @@ public class TokenScanner implements Iterable<Token> {
 		
 		for (String word: words) {
 			String loWord = word.toLowerCase();
-			if (this.isStartOfComment(loWord)) {
+			if (isStartOfComment(loWord)) {
 				break;
 			}
 
-			Type tokenType = this.determineType(loWord);
+			Type tokenType = determineType(loWord);
 			Token result = null;
 		
 			if (tokenType != null) {
-				result = this.addToSymbolTable(loWord, tokenType);
-				this.addToTokenCollection(result);
+				result = addToSymbolTable(loWord, tokenType);
+				addToTokenCollection(result);
 			} else {
-				this.hasInvalidToken = true;
-				List<String> correction = this.suggestCorrection(loWord);
+				myHasInvalidToken = true;
+				List<String> correction = suggestCorrection(loWord);
 				if (correction != null) {
-					this.printCorrection(correction, lineNum);
+					printCorrection(correction, lineNum);
 					continue;
 				}
 			}			
 			// either when there is a valid token, or when the correction failed
-			this.printOutput(result, word, lineNum);
+			printOutput(result, word, lineNum);
 		}
 	}
 	
@@ -129,8 +129,8 @@ public class TokenScanner implements Iterable<Token> {
 	 * 				is already present in the table; null otherwise
 	 */
 	private Token addToSymbolTable(String str, Type tokenType) {
-		if (this.symbolTable.containsKey(str)) {
-			return this.symbolTable.get(str);
+		if (mySymbolTable.containsKey(str)) {
+			return mySymbolTable.get(str);
 		}
 
 		Token result = null;
@@ -139,10 +139,10 @@ public class TokenScanner implements Iterable<Token> {
 			return result;
 		} else if (tokenType == Type.INTEGER) {
 			result = new Token(tokenType, str, Integer.parseInt(str));
-			this.symbolTable.put(str, result);
+			mySymbolTable.put(str, result);
 		} else if (tokenType == Type.VARIABLE) {
 			result = new Token(tokenType, str, 0);
-			this.symbolTable.put(str, result);
+			mySymbolTable.put(str, result);
 		} else {
 			// either a keyword, or a punctuation
 			// so it's not inserted into the symbolTable
@@ -157,7 +157,7 @@ public class TokenScanner implements Iterable<Token> {
 	 * @param token   Token to be added to the collection
 	 */
 	private void addToTokenCollection(Token token) {
-		this.tokenCollection.add(token);
+		myTokenCollection.add(token);
 	}
 	
 	/**
@@ -184,7 +184,7 @@ public class TokenScanner implements Iterable<Token> {
 		 * 4. Semicolon
 		 * 5. Invalid token
 		 */
-		if (this.isKeyword(str)) {
+		if (isKeyword(str)) {
 			Type type = null;
 			switch (str) {
 				case "begin": type = Type.BEGIN; break;
@@ -256,7 +256,7 @@ public class TokenScanner implements Iterable<Token> {
 		for (int i=1; i <= len - 1; i++) {
 			first = invalid.substring(0, i);
 			second = invalid.substring(i);
-			if (this.isValidToken(first) && this.isValidToken(second)) {
+			if (isValidToken(first) && isValidToken(second)) {
 				result.add(first);
 				result.add(second);
 				return result;
@@ -269,8 +269,8 @@ public class TokenScanner implements Iterable<Token> {
 		for (int j=0; j < len; j++) {
 			first = invalid.substring(0, j);
 			second = invalid.substring(j + 1);
-			if ( (first.isEmpty() || this.isValidToken(first)) &&
-					(second.isEmpty() || this.isValidToken(second)) ) {
+			if ( (first.isEmpty() || isValidToken(first)) &&
+					(second.isEmpty() || isValidToken(second)) ) {
 				result.add(first);
 				result.add(second);
 				return result;
@@ -316,31 +316,30 @@ public class TokenScanner implements Iterable<Token> {
 	private boolean isStartOfComment(String word) {
 		return word.equals("//");
 	}
-	
-	/**
-	 * This static inner class implements the Iterator interface and is used by
-	 * the iterator method of TokenScanner to return an iterator over the tokenCollection
-	 */
-	private static class TokenCollectionIterator implements Iterator<Token> {
-		private int cursor = 0;
-		private List<Token> tokenCollection;
-		
-		public TokenCollectionIterator(List<Token> tokenCollection) {
-			this.tokenCollection = tokenCollection;
-		}
-		
-		@Override
-		public boolean hasNext() {
-			return cursor != this.tokenCollection.size();
-		}
-
-		@Override
-		public Token next() {
-			return this.tokenCollection.get(cursor++);
-		}
-	}
 }
 
+/**
+ * This class implements the Iterator interface and is used by
+ * the iterator method of TokenScanner to return an iterator over the tokenCollection
+ */
+class TokenCollectionIterator implements Iterator<Token> {
+	private int cursor = 0;
+	private List<Token> myTokenCollection;
+	
+	public TokenCollectionIterator(List<Token> tokenCollection) {
+		myTokenCollection = tokenCollection;
+	}
+	
+	@Override
+	public boolean hasNext() {
+		return cursor != myTokenCollection.size();
+	}
+
+	@Override
+	public Token next() {
+		return myTokenCollection.get(cursor++);
+	}
+}
 
 class InvalidTokenException extends Exception {
 	/**

@@ -110,7 +110,7 @@ public class Parser {
 			} else if (action == Action.ERROR) {
 				
 				if (debug) printStackContents(mySymbolStack);
-				throw new ParsingException("This is not a valid MC program.");
+				throw new ParsingException("This is not a valid MOUSEYCAT program.");
 				
 			}
 			

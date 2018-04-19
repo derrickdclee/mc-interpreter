@@ -105,7 +105,10 @@ public class Parser {
 				mySymbolStack.addLast(lhs);
 				state = Integer.parseInt(Parser.getParseTableEntry(state, lhs));
 				mySymbolStack.addLast(Integer.toString(state));
-				if (debug) printStackContents(mySymbolStack);
+				if (debug) {
+					System.out.println("REDUCE OP HAPPENED");
+					printStackContents(mySymbolStack);
+				}
 				
 			} else if (action == Action.ERROR) {
 				

@@ -25,8 +25,7 @@ public class Project2 {
 			
 			Parser parser = new Parser();
 			Iterator<Token> it = scanner.getIterator();
-			parser.parse(it);
-			// parser.parse(it, true) // if you wish to examine stack contents at each step
+			parser.parse(it, true); // if you wish to examine stack contents at each step
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InvalidTokenException e) {

@@ -102,8 +102,6 @@ public class Parser {
 			} else if (action == Action.REDUCE) {
 				
 				rule = Parser.getEntryNumber(entry);
-				System.out.printf("REDUCE OP %d TO HAPPEN", rule);
-				System.out.println();
 				modifyASTStack(rule); // modify ASTStack according to the reduce rule
 			
 				myRuleStack.addLast(rule);
@@ -118,6 +116,8 @@ public class Parser {
 				state = Integer.parseInt(Parser.getParseTableEntry(state, lhs));
 				mySymbolStack.addLast(Integer.toString(state));
 				if (debug) {
+					System.out.printf("REDUCE OP %d APPLIED", rule);
+					System.out.println();
 					printStackContents(mySymbolStack);
 				}
 				
@@ -137,6 +137,7 @@ public class Parser {
 		}
 		
 		printProductionRules(myRuleStack); // prints the rightmost derivations in the correct order
+		printAST(myASTStack.getLast());
 		System.out.println("Parsed successfully!");
 	}
 	
@@ -216,6 +217,15 @@ public class Parser {
 			default:
 				break;
 		}
+	}
+	
+	private void printAST(ASTNode root) {
+		if (!root.myChildren.isEmpty()) {
+			for (ASTNode child: root.myChildren) {
+				printAST(child);
+			}
+		}
+		System.out.println(root.toString());
 	}
 	
 	/**

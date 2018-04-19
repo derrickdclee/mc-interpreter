@@ -314,7 +314,7 @@ public class TokenScanner implements Iterable<Token> {
 	 * @return	true if it's the start of a comment; false otherwise
 	 */
 	private boolean isStartOfComment(String word) {
-		return word.equals("//");
+		return word.startsWith("//"); // it's possible there is no space after the double slashes
 	}
 }
 

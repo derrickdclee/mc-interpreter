@@ -87,7 +87,7 @@ class IntNode extends ASTNode {
 	Token i;
 	
 	IntNode(Token i) {
-		super("int");
+		super("int_leaf");
 		this.i = i;
 	}
 	
@@ -100,7 +100,7 @@ class VarNode extends ASTNode {
 	Token v;
 	
 	VarNode(Token v) {
-		super("var");
+		super("var_leaf");
 		this.v = v;
 	}
 	
@@ -113,7 +113,7 @@ class DirNode extends ASTNode {
 	Token d;
 	
 	DirNode(Token d) {
-		super("dir");
+		super("dir_leaf");
 		this.d = d;
 	}
 	

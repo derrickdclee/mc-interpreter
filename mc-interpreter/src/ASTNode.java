@@ -97,10 +97,12 @@ class ClockwiseNode extends ASTNode {
 
 class RepeatNode extends ASTNode {
 	IntNode i;
+	ASTNode list;
 	
-	RepeatNode(IntNode i) {
+	RepeatNode(IntNode i, ASTNode list) {
 		super(7);
 		this.i = i;
+		this.list = list;
 	}
 }
 

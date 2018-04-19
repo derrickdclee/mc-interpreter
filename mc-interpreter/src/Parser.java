@@ -8,11 +8,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 
 public class Parser {
 	private static final int NUM_STATES = 38;
@@ -104,6 +102,10 @@ public class Parser {
 			} else if (action == Action.REDUCE) {
 				
 				rule = Parser.getEntryNumber(entry);
+				System.out.printf("REDUCE OP %d TO HAPPEN", rule);
+				System.out.println();
+				modifyASTStack(rule); // modify ASTStack according to the reduce rule
+			
 				myRuleStack.addLast(rule);
 				int rhsSize = Parser.getRuleRHSSize(rule);
 				for (int i=0; i < 2*rhsSize; i++) {
@@ -116,7 +118,6 @@ public class Parser {
 				state = Integer.parseInt(Parser.getParseTableEntry(state, lhs));
 				mySymbolStack.addLast(Integer.toString(state));
 				if (debug) {
-					System.out.println("REDUCE OP HAPPENED");
 					printStackContents(mySymbolStack);
 				}
 				
@@ -149,6 +150,71 @@ public class Parser {
 		} else if (tokenType == Type.NORTH || tokenType == Type.SOUTH 
 				|| tokenType == Type.EAST || tokenType == Type.WEST) {
 			myASTStack.addLast(new DirNode(token));
+		}
+	}
+	
+	private void modifyASTStack(int rule) {
+		switch (rule) {
+			case 1: {
+				ASTNode list = myASTStack.removeLast();
+				IntNode j = (IntNode) myASTStack.removeLast();
+				IntNode i = (IntNode) myASTStack.removeLast();
+				myASTStack.addLast(new RootNode(i, j, list));
+				break;
+			}
+			case 3: {
+				ASTNode right = myASTStack.removeLast();
+				ASTNode left = myASTStack.removeLast();
+				myASTStack.addLast(new SequenceNode(left, right));
+				break;
+			}
+			case 4: {
+				DirNode dir = (DirNode) myASTStack.removeLast();
+				IntNode j = (IntNode) myASTStack.removeLast();
+				IntNode i = (IntNode) myASTStack.removeLast();
+				VarNode v = (VarNode) myASTStack.removeLast();
+				myASTStack.addLast(new CatNode(v, i, j, dir));
+				break;
+			}
+			case 5: {
+				DirNode dir = (DirNode) myASTStack.removeLast();
+				IntNode j = (IntNode) myASTStack.removeLast();
+				IntNode i = (IntNode) myASTStack.removeLast();
+				VarNode v = (VarNode) myASTStack.removeLast();
+				myASTStack.addLast(new MouseNode(v, i, j, dir));
+				break;
+			}
+			case 6: {
+				IntNode j = (IntNode) myASTStack.removeLast();
+				IntNode i = (IntNode) myASTStack.removeLast();
+				myASTStack.addLast(new HoleNode(i, j));
+				break;
+			}
+			case 7: {
+				VarNode v = (VarNode) myASTStack.removeLast();
+				IntNode i = new IntNode(new Token(Type.INTEGER, "1", 1));
+				myASTStack.addLast(new MoveNode(v, i));
+				break;
+			}
+			case 8: {
+				IntNode i = (IntNode) myASTStack.removeLast();
+				VarNode v = (VarNode) myASTStack.removeLast();
+				myASTStack.addLast(new MoveNode(v, i));
+				break;
+			}
+			case 9: {
+				VarNode v = (VarNode) myASTStack.removeLast();
+				myASTStack.addLast(new ClockwiseNode(v));
+				break;
+			}
+			case 10: {
+				ASTNode list = myASTStack.removeLast();
+				IntNode i = (IntNode) myASTStack.removeLast();
+				myASTStack.addLast(new RepeatNode(i, list));
+				break;
+			}
+			default:
+				break;
 		}
 	}
 	

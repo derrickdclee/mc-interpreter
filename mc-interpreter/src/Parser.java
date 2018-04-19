@@ -8,9 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 public class Parser {
 	private static final int NUM_STATES = 38;
@@ -28,7 +30,8 @@ public class Parser {
 	private static String[][] ruleMap = new String[NUM_RULES][3];
 	
 	private Deque<String> mySymbolStack;
-	private Deque<Integer> myRuleStack;
+	private Deque<ASTNode> myASTStack;
+	private Deque<Integer> myRuleStack; // to print output
 	
 	/**
 	 * Initialization of static fields
@@ -48,6 +51,7 @@ public class Parser {
 	 */
 	public Parser() {
 		mySymbolStack = new LinkedList<>();
+		myASTStack = new LinkedList<>();
 		myRuleStack = new LinkedList<>();
 	}
 	
@@ -74,12 +78,15 @@ public class Parser {
 		mySymbolStack.addLast(Integer.toString(state));
 		if (debug) printStackContents(mySymbolStack);
 		
+		Token token = null;
 		String symbol = null;
 		String entry = null;
-		
-		symbol = it.next().getTokenType().name();
-		entry = Parser.getParseTableEntry(state, symbol);
 		Action action = null;
+		
+		token = it.next();
+		addIfLeafNode(token);
+		symbol = token.getTokenType().name();
+		entry = Parser.getParseTableEntry(state, symbol);
 		
 		while ( (action = Parser.getEntryAction(entry)) != Action.ACCEPT) {
 			
@@ -88,13 +95,16 @@ public class Parser {
 				mySymbolStack.addLast(symbol);
 				state = Parser.getEntryNumber(entry);
 				mySymbolStack.addLast(Integer.toString(state));
-				symbol = it.next().getTokenType().name();
+				
+				token = it.next();
+				addIfLeafNode(token);
+				symbol = token.getTokenType().name();
 				if (debug) printStackContents(mySymbolStack);
 				
 			} else if (action == Action.REDUCE) {
 				
 				rule = Parser.getEntryNumber(entry);
-				myRuleStack.addLast(rule); // for output
+				myRuleStack.addLast(rule);
 				int rhsSize = Parser.getRuleRHSSize(rule);
 				for (int i=0; i < 2*rhsSize; i++) {
 					mySymbolStack.removeLast();
@@ -127,6 +137,19 @@ public class Parser {
 		
 		printProductionRules(myRuleStack); // prints the rightmost derivations in the correct order
 		System.out.println("Parsed successfully!");
+	}
+	
+	private void addIfLeafNode(Token token) {
+		Type tokenType = token.getTokenType();
+		
+		if (tokenType == Type.INTEGER) {
+			myASTStack.addLast(new IntNode(token));
+		} else if (tokenType == Type.VARIABLE) {
+			myASTStack.addLast(new VarNode(token));
+		} else if (tokenType == Type.NORTH || tokenType == Type.SOUTH 
+				|| tokenType == Type.EAST || tokenType == Type.WEST) {
+			myASTStack.addLast(new DirNode(token));
+		}
 	}
 	
 	/**

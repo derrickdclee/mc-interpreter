@@ -58,8 +58,8 @@ public class Parser {
 	 * @param it	iterator over Token objects
 	 * @throws ParsingException    if there is an error
 	 */
-	public void parse(Iterator<Token> it) throws ParsingException {
-		parse(it, false);
+	public ASTNode parse(Iterator<Token> it) throws ParsingException {
+		return parse(it, false);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class Parser {
 	 * @param debug     if true, print stack contents
 	 * @throws ParsingException    if there is an error
 	 */
-	public void parse(Iterator<Token> it, boolean debug) throws ParsingException {
+	public ASTNode parse(Iterator<Token> it, boolean debug) throws ParsingException {
 		int state = 0;
 		int rule = -1;
 		
@@ -137,8 +137,9 @@ public class Parser {
 		}
 		
 		printProductionRules(myRuleStack); // prints the rightmost derivations in the correct order
-		printAST(myASTStack.getLast());
 		System.out.println("Parsed successfully!");
+		
+		return myASTStack.getLast();
 	}
 	
 	private void addIfLeafNode(Token token) {
@@ -219,15 +220,6 @@ public class Parser {
 		}
 	}
 	
-	private void printAST(ASTNode root) {
-		if (!root.myChildren.isEmpty()) {
-			for (ASTNode child: root.myChildren) {
-				printAST(child);
-			}
-		}
-		System.out.println(root.toString());
-	}
-	
 	/**
 	 * This method is used to initialize the static field parseTable, which is implemented as
 	 * a two-dimensional array of strings. Each row corresponds to a state, each column corresponds
@@ -296,7 +288,7 @@ public class Parser {
 	 * 1st column = variable on the LHS of the rule, 2nd column = the full production rule spelled out for output
 	 */
 	private static void buildRuleMap() {
-		Parser.ruleMap[1] = new String[] {Integer.toString(6), P, "_Program -> SIZE INTEGER INTEGER BEGIN _LIST HALT"};
+		Parser.ruleMap[1] = new String[] {Integer.toString(6), P, "_PROGRAM -> SIZE INTEGER INTEGER BEGIN _LIST HALT"};
 		Parser.ruleMap[2] = new String[] {Integer.toString(2), L, "_LIST -> _STATEMENT SEMICOLON"};
 		Parser.ruleMap[3] = new String[] {Integer.toString(3), L, "_LIST -> _LIST _STATEMENT SEMICOLON"};
 		Parser.ruleMap[4] = new String[] {Integer.toString(5), S, "_STATEMENT -> CAT VARIABLE INTEGER INTEGER _DIRECTION"};

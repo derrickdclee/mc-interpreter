@@ -1,13 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
+
 
 abstract public class ASTNode {
 	final String myNodeType;
-	List<ASTNode> myChildren;
 	
 	ASTNode(String nodeType) {
 		myNodeType = nodeType;
-		myChildren = new ArrayList<>();
 	}
 	
 	public String toString() {
@@ -16,108 +13,151 @@ abstract public class ASTNode {
 }
 
 class RootNode extends ASTNode {
+	IntNode i; // height - corresponds to y position
+	IntNode j; // width - corresponds to x position
+	ASTNode list;
+	
 	RootNode(IntNode i, IntNode j, ASTNode list) {
 		super("root_node");
-		myChildren.add(i);
-		myChildren.add(j);
-		myChildren.add(list);
+		this.i = i;
+		this.j = j;
+		this.list = list;
 	}
 }
 
 class CatNode extends ASTNode {
-	CatNode(VarNode v, IntNode i, IntNode j, DirNode d) {
+	VarNode v;
+	IntNode x;
+	IntNode y;
+	DirNode d;
+	
+	CatNode(VarNode v, IntNode x, IntNode y, DirNode d) {
 		super("cat_node");
-		myChildren.add(v);
-		myChildren.add(i);
-		myChildren.add(j);
-		myChildren.add(d);
+		this.v = v;
+		this.x = x;
+		this.y = y;
+		this.d = d;
 	}
 }
 
 class MouseNode extends ASTNode {
+	VarNode v;
+	IntNode i;
+	IntNode j;
+	DirNode d;
+	
 	MouseNode(VarNode v, IntNode i, IntNode j, DirNode d) {
 		super("mouse_node");
-		myChildren.add(v);
-		myChildren.add(i);
-		myChildren.add(j);
-		myChildren.add(d);
+		this.v = v;
+		this.i = i;
+		this.j = j;
+		this.d = d;
 	}
 }
 
 class HoleNode extends ASTNode {
+	IntNode i;
+	IntNode j;
+	
 	HoleNode(IntNode i, IntNode j) {
 		super("hole_node");
-		myChildren.add(i);
-		myChildren.add(j);
+		this.i = i;
+		this.j = j;
 	}
 }
 
 class SequenceNode extends ASTNode {
+	ASTNode left;
+	ASTNode right;
+	
 	SequenceNode(ASTNode left, ASTNode right) {
 		super("seq_node");
-		myChildren.add(left);
-		myChildren.add(right);
+		this.left = left;
+		this.right = right;
 	}
 }
 
 class MoveNode extends ASTNode {
+	VarNode v;
+	IntNode i;
+	
 	MoveNode(VarNode v, IntNode i) {
 		super("move_node");
-		myChildren.add(v);
-		myChildren.add(i);
+		this.v = v;
+		this.i = i;
 	}
 }
 
 class ClockwiseNode extends ASTNode {
+	VarNode v;
+	
 	ClockwiseNode(VarNode v) {
 		super("clockwise_node");
-		myChildren.add(v);
+		this.v = v;
 	}
 }
 
 class RepeatNode extends ASTNode {
+	IntNode i;
+	ASTNode list;
+	
 	RepeatNode(IntNode i, ASTNode list) {
 		super("repeat_node");
-		myChildren.add(i);
-		myChildren.add(list);
+		this.i = i;
+		this.list = list;
 	}
 }
 
 class IntNode extends ASTNode {
-	Token i;
+	Token intToken;
 	
-	IntNode(Token i) {
+	IntNode(Token intToken) {
 		super("int_leaf");
-		this.i = i;
+		this.intToken = intToken;
 	}
 	
 	public String toString() {
-		return i.getCharVal();
+		return intToken.getCharVal();
 	}
 }
 
 class VarNode extends ASTNode {
-	Token v;
+	Token varToken;
 	
-	VarNode(Token v) {
+	VarNode(Token varToken) {
 		super("var_leaf");
-		this.v = v;
+		this.varToken = varToken;
 	}
 	
 	public String toString() {
-		return v.getCharVal();
+		return varToken.getCharVal();
 	}
 }
 
 class DirNode extends ASTNode {
-	Token d;
+	Direction dir;
 	
-	DirNode(Token d) {
+	DirNode(Token dirToken) {
 		super("dir_leaf");
-		this.d = d;
+		switch (dirToken.getTokenType()) {
+			case NORTH:
+				this.dir = Direction.NORTH;
+				break;
+			case SOUTH:
+				this.dir = Direction.SOUTH;
+				break;
+			case EAST:
+				this.dir = Direction.EAST;
+				break;
+			case WEST:
+				this.dir = Direction.WEST;
+				break;
+			default:
+				break;
+		}
 	}
 	
 	public String toString() {
-		return d.getTokenType().name();
+		return dir.name();
 	}
 }

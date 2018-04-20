@@ -19,7 +19,7 @@ public class Project3 {
 			
 			Parser parser = new Parser();
 			Iterator<Token> it = scanner.getIterator();
-			parser.parse(it); // if you wish to examine stack contents at each step
+			ASTNode root = parser.parse(it); // if you wish to examine stack contents at each step
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InvalidTokenException e) {

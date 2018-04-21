@@ -1,3 +1,7 @@
+/**
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ */
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -49,7 +53,7 @@ public class GridGraphic extends JFrame{
 	public void updateGraphic(Grid grid) {
 		for(int y=0; y<myHeight; y++) {
 			for(int x=0; x<myWidth; x++) {
-				Spot spot = grid.myGrid[x][y];
+				Spot spot = grid.getSpot(x, y);
 				squares[y][x].removeAll();
 				
 				if (spot.isOccupied()) {

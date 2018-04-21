@@ -1,3 +1,8 @@
+/**
+ * 
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ *
+ */
 
 /*
  * Rules:
@@ -10,7 +15,8 @@
  * -> kill the last to enter.
  * 5. Mouse and Cat together
  * -> kill the mouse
- * 6. Holes must be instantiated on an empty Spot.
+ * 6. Holes must be instantiated on an empty Spot (no critter, no previous hole).
+ * 7. Critters can "jump over" other things.
  */
 
 public class ASTProcessor {
@@ -27,8 +33,8 @@ public class ASTProcessor {
 	}
 	
 	public void process(RootNode root) throws ASTTraversalException {
-		int height = root.i.intToken.getIntVal();
-		int width = root.j.intToken.getIntVal();
+		int height = root.height.intToken.getIntVal();
+		int width = root.width.intToken.getIntVal();
 		myGrid = new Grid(height, width);
 		
 		myGraphic = new GridGraphic(height, width);
@@ -38,27 +44,29 @@ public class ASTProcessor {
 	}
 	
 	private void processNode(ASTNode list) throws ASTTraversalException {
-		switch (list.myNodeType) {
-			case "cat_node":
+		switch (list.getNodeType()) {
+			case CAT_NODE:
 				processCatNode((CatNode) list);
 				break;
-			case "mouse_node":
+			case MOUSE_NODE:
 				processMouseNode((MouseNode) list);
 				break;
-			case "hole_node":
+			case HOLE_NODE:
 				processHoleNode((HoleNode) list);
 				break;
-			case "seq_node":
+			case SEQUENCE_NODE:
 				processSequenceNode((SequenceNode) list);
 				break;
-			case "move_node":
+			case MOVE_NODE:
 				processMoveNode((MoveNode) list);
 				break;
-			case "clockwise_node":
+			case CLOCKWISE_NODE:
 				processClockwiseNode((ClockwiseNode) list);
 				break;
-			case "repeat_node":
+			case REPEAT_NODE:
 				processRepeatNode((RepeatNode) list);
+				break;
+			default:
 				break;
 		}
 	}
@@ -67,7 +75,7 @@ public class ASTProcessor {
 		String name = node.v.varToken.getCharVal();
 		
 		// throw exception if the variable name has been used
-		if (myGrid.myVarMap.containsKey(name)) {
+		if (myGrid.getVarMap().containsKey(name)) {
 			throw new ASTTraversalException("You cannot reuse a variable name.");
 		}
 		
@@ -79,9 +87,9 @@ public class ASTProcessor {
 		}
 		
 		Cat c = new Cat(name, x, y, node.d);
-		myGrid.myVarMap.put(name, c);
+		myGrid.getVarMap().put(name, c);
 		
-		Spot spot = myGrid.myGrid[x][y];
+		Spot spot = myGrid.getSpot(x, y);
 		if (!spot.isOccupied()) {
 			spot.put(c);
 		} else {
@@ -108,7 +116,7 @@ public class ASTProcessor {
 		String name = node.v.varToken.getCharVal();
 		
 		// throw exception if the variable name has been used
-		if (myGrid.myVarMap.containsKey(name)) {
+		if (myGrid.getVarMap().containsKey(name)) {
 			throw new ASTTraversalException("You cannot reuse a variable name.");
 		}
 		
@@ -120,9 +128,9 @@ public class ASTProcessor {
 		}
 		
 		Mouse m = new Mouse(name, x, y, node.d);
-		myGrid.myVarMap.put(name, m);
+		myGrid.getVarMap().put(name, m);
 		
-		Spot spot = myGrid.myGrid[x][y];
+		Spot spot = myGrid.getSpot(x, y);
 		if (spot.hasHole()) {
 			spot.putInHole(m);
 		} else {
@@ -146,7 +154,7 @@ public class ASTProcessor {
 	private void processHoleNode(HoleNode node) throws ASTTraversalException {
 		int x = node.x.intToken.getIntVal();
 		int y = node.y.intToken.getIntVal();
-		Spot spot = myGrid.myGrid[x][y];
+		Spot spot = myGrid.getSpot(x, y);
 		
 		// throw exception if Spot already has a hole or is occupied
 		if (spot.hasHole() || spot.isOccupied()) {
@@ -170,12 +178,12 @@ public class ASTProcessor {
 	private void processMoveNode(MoveNode node) throws ASTTraversalException {
 		// throw exception if try to move an uninstantiated critter
 		String name = node.v.varToken.getCharVal();
-		if (!myGrid.myVarMap.containsKey(name)) {
+		if (!myGrid.getVarMap().containsKey(name)) {
 			throw new ASTTraversalException("This variable has not been instantiated.");
 		}
 		
 		// throw exception if try to move a dead critter
-		Critter critter = myGrid.myVarMap.get(name);
+		Critter critter = myGrid.getVarMap().get(name);
 		if (!critter.isAlive()) {
 			throw new ASTTraversalException("This critter is dead.");
 		}
@@ -209,7 +217,7 @@ public class ASTProcessor {
 		}
 		
 		// remove critter from old Spot
-		Spot oldSpot = myGrid.myGrid[oldX][oldY];
+		Spot oldSpot = myGrid.getSpot(oldX, oldY);
 		if (critter instanceof Cat || !oldSpot.hasHole()) {
 			oldSpot.remove();
 		} else {
@@ -217,7 +225,7 @@ public class ASTProcessor {
 		}
 		
 		// try to put the critter in the new Spot
-		Spot newSpot = myGrid.myGrid[x][y];
+		Spot newSpot = myGrid.getSpot(x, y);
 		if (critter instanceof Cat) {
 			if (!newSpot.isOccupied()) {
 				newSpot.put(critter);
@@ -259,12 +267,12 @@ public class ASTProcessor {
 	private void processClockwiseNode(ClockwiseNode node) throws ASTTraversalException {
 		// throw exception if try to move an uninstantiated critter
 		String name = node.v.varToken.getCharVal();
-		if (!myGrid.myVarMap.containsKey(name)) {
+		if (!myGrid.getVarMap().containsKey(name)) {
 			throw new ASTTraversalException("This variable has not been instantiated.");
 		}
 		
 		// throw exception if try to move a dead critter
-		Critter critter = myGrid.myVarMap.get(name);
+		Critter critter = myGrid.getVarMap().get(name);
 		if (!critter.isAlive()) {
 			throw new ASTTraversalException("This critter is dead.");
 		}
@@ -311,8 +319,8 @@ public class ASTProcessor {
 	}
 	
 	private boolean isValidLocation(int x, int y) {
-		return x >= 0 && x < myGrid.myGrid.length &&
-				y >= 0 && y < myGrid.myGrid[0].length;
+		return x >= 0 && x < myGrid.getWidth() &&
+				y >= 0 && y < myGrid.getHeight();
 	}
 }
 

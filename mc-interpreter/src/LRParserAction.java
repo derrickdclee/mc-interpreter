@@ -3,7 +3,7 @@
  * @author Derrick Lee <derrickdclee@gmail.com>
  *
  */
-public enum Action {
+public enum LRParserAction {
 	SHIFT,
 	REDUCE,
 	ERROR,

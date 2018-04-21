@@ -1,5 +1,7 @@
-Interpreter written in Java for the MOUSEY-CAT programming lanugage
+Interpreter written in Java for the MOUSEYCAT programming lanugage
 
 - lexical analysis
-- syntax analysis (using SLR parser)
-- construction of syntax tree
+- syntactic analysis (using SLR parser)
+- construction of Abstract Syntax Tree
+- graphic simulation of MOUSEYCAT programs
+

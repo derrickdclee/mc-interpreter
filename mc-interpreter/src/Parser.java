@@ -79,16 +79,16 @@ public class Parser {
 		Token token = null;
 		String symbol = null;
 		String entry = null;
-		Action action = null;
+		LRParserAction action = null;
 		
 		token = it.next();
 		addIfLeafNode(token);
 		symbol = token.getTokenType().name();
 		entry = Parser.getParseTableEntry(state, symbol);
 		
-		while ( (action = Parser.getEntryAction(entry)) != Action.ACCEPT) {
+		while ( (action = Parser.getEntryAction(entry)) != LRParserAction.ACCEPT) {
 			
-			if (action == Action.SHIFT) {
+			if (action == LRParserAction.SHIFT) {
 				
 				mySymbolStack.addLast(symbol);
 				state = Parser.getEntryNumber(entry);
@@ -99,7 +99,7 @@ public class Parser {
 				symbol = token.getTokenType().name();
 				if (debug) printStackContents(mySymbolStack);
 				
-			} else if (action == Action.REDUCE) {
+			} else if (action == LRParserAction.REDUCE) {
 				
 				rule = Parser.getEntryNumber(entry);
 				modifyASTStack(rule); // modify ASTStack according to the reduce rule
@@ -121,7 +121,7 @@ public class Parser {
 					printStackContents(mySymbolStack);
 				}
 				
-			} else if (action == Action.ERROR) {
+			} else if (action == LRParserAction.ERROR) {
 				
 				if (debug) printStackContents(mySymbolStack);
 				throw new ParsingException("This is not a valid MOUSEYCAT program.");
@@ -146,12 +146,12 @@ public class Parser {
 		TokenType tokenType = token.getTokenType();
 		
 		if (tokenType == TokenType.INTEGER) {
-			myASTStack.addLast(new IntNode(token));
+			myASTStack.addLast(new IntLeaf(token));
 		} else if (tokenType == TokenType.VARIABLE) {
-			myASTStack.addLast(new VarNode(token));
+			myASTStack.addLast(new VarLeaf(token));
 		} else if (tokenType == TokenType.NORTH || tokenType == TokenType.SOUTH 
 				|| tokenType == TokenType.EAST || tokenType == TokenType.WEST) {
-			myASTStack.addLast(new DirNode(token));
+			myASTStack.addLast(new DirLeaf(token));
 		}
 	}
 	
@@ -159,8 +159,8 @@ public class Parser {
 		switch (rule) {
 			case 1: {
 				ASTNode list = myASTStack.removeLast();
-				IntNode j = (IntNode) myASTStack.removeLast();
-				IntNode i = (IntNode) myASTStack.removeLast();
+				IntLeaf j = (IntLeaf) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new RootNode(i, j, list));
 				break;
 			}
@@ -171,47 +171,47 @@ public class Parser {
 				break;
 			}
 			case 4: {
-				DirNode dir = (DirNode) myASTStack.removeLast();
-				IntNode j = (IntNode) myASTStack.removeLast();
-				IntNode i = (IntNode) myASTStack.removeLast();
-				VarNode v = (VarNode) myASTStack.removeLast();
+				DirLeaf dir = (DirLeaf) myASTStack.removeLast();
+				IntLeaf j = (IntLeaf) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
+				VarLeaf v = (VarLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new CatNode(v, i, j, dir));
 				break;
 			}
 			case 5: {
-				DirNode dir = (DirNode) myASTStack.removeLast();
-				IntNode j = (IntNode) myASTStack.removeLast();
-				IntNode i = (IntNode) myASTStack.removeLast();
-				VarNode v = (VarNode) myASTStack.removeLast();
+				DirLeaf dir = (DirLeaf) myASTStack.removeLast();
+				IntLeaf j = (IntLeaf) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
+				VarLeaf v = (VarLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new MouseNode(v, i, j, dir));
 				break;
 			}
 			case 6: {
-				IntNode j = (IntNode) myASTStack.removeLast();
-				IntNode i = (IntNode) myASTStack.removeLast();
+				IntLeaf j = (IntLeaf) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new HoleNode(i, j));
 				break;
 			}
 			case 7: {
-				VarNode v = (VarNode) myASTStack.removeLast();
-				IntNode i = new IntNode(new Token(TokenType.INTEGER, "1", 1));
+				VarLeaf v = (VarLeaf) myASTStack.removeLast();
+				IntLeaf i = new IntLeaf(new Token(TokenType.INTEGER, "1", 1));
 				myASTStack.addLast(new MoveNode(v, i));
 				break;
 			}
 			case 8: {
-				IntNode i = (IntNode) myASTStack.removeLast();
-				VarNode v = (VarNode) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
+				VarLeaf v = (VarLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new MoveNode(v, i));
 				break;
 			}
 			case 9: {
-				VarNode v = (VarNode) myASTStack.removeLast();
+				VarLeaf v = (VarLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new ClockwiseNode(v));
 				break;
 			}
 			case 10: {
 				ASTNode list = myASTStack.removeLast();
-				IntNode i = (IntNode) myASTStack.removeLast();
+				IntLeaf i = (IntLeaf) myASTStack.removeLast();
 				myASTStack.addLast(new RepeatNode(i, list));
 				break;
 			}
@@ -324,15 +324,15 @@ public class Parser {
 		return Parser.stringToColNumMap.get(symbol);
 	}
 	
-	private static Action getEntryAction(String entry) {
+	private static LRParserAction getEntryAction(String entry) {
 		if (entry.startsWith("r")) {
-			return Action.REDUCE;
+			return LRParserAction.REDUCE;
 		} else if (entry.startsWith("s")) {
-			return Action.SHIFT;
+			return LRParserAction.SHIFT;
 		} else if (entry.startsWith("acc")) {
-			return Action.ACCEPT;
+			return LRParserAction.ACCEPT;
 		} else if (entry.startsWith("err")) {
-			return Action.ERROR;
+			return LRParserAction.ERROR;
 		}
 		return null; // shouldn't reach here
 	}

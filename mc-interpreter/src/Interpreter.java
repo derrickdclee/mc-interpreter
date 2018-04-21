@@ -1,3 +1,7 @@
+/**
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -10,18 +14,19 @@ import java.util.Scanner;
  * 3) The three images uploaded must be in the directory ./images/
  */
 
-public class Project3 {
+public class Interpreter {
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter the name of MOUSEYCAT program you want to read: ");
 		String fileName = sc.next();
-		File f = new File("./tests/p3/" + fileName);
+		File f = new File("./tests/" + fileName);
 		sc.close();
 		
 		TokenScanner scanner = null;
 		try {
 			scanner = new TokenScanner();
+			System.out.println("Starting lexical analysis... ");
 			scanner.scanInputProgram(f);
 			System.out.println("==================================");
 		} catch (IOException e) {
@@ -31,6 +36,7 @@ public class Project3 {
 		ASTNode root = null;
 		try {
 			Parser parser = new Parser();
+			System.out.println("Starting syntax analysis... ");
 			Iterator<Token> it = scanner.getIterator();
 			root = parser.parse(it);
 		} catch (InvalidTokenException e) {

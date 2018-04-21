@@ -1,38 +1,46 @@
-
+/**
+ * 
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ *
+ */
 
 abstract public class ASTNode {
-	final String myNodeType;
+	private final ASTNodeType myNodeType;
 	
-	ASTNode(String nodeType) {
+	public ASTNode(ASTNodeType nodeType) {
 		myNodeType = nodeType;
 	}
 	
-	public String toString() {
+	public ASTNodeType getNodeType() {
 		return myNodeType;
+	}
+	
+	public String toString() {
+		return myNodeType.name();
 	}
 }
 
 class RootNode extends ASTNode {
-	IntNode i; // height - corresponds to y position
-	IntNode j; // width - corresponds to x position
+	IntLeaf height; // height - corresponds to y position
+	IntLeaf width; // width - corresponds to x position
 	ASTNode list;
 	
-	RootNode(IntNode i, IntNode j, ASTNode list) {
-		super("root_node");
-		this.i = i;
-		this.j = j;
+	public RootNode(IntLeaf height, IntLeaf width, ASTNode list) {
+		super(ASTNodeType.ROOT_NODE);
+		this.height = height;
+		this.width = width;
 		this.list = list;
 	}
 }
 
 class CatNode extends ASTNode {
-	VarNode v;
-	IntNode x;
-	IntNode y;
-	DirNode d;
+	VarLeaf v;
+	IntLeaf x;
+	IntLeaf y;
+	DirLeaf d;
 	
-	CatNode(VarNode v, IntNode x, IntNode y, DirNode d) {
-		super("cat_node");
+	public CatNode(VarLeaf v, IntLeaf x, IntLeaf y, DirLeaf d) {
+		super(ASTNodeType.CAT_NODE);
 		this.v = v;
 		this.x = x;
 		this.y = y;
@@ -41,13 +49,13 @@ class CatNode extends ASTNode {
 }
 
 class MouseNode extends ASTNode {
-	VarNode v;
-	IntNode x;
-	IntNode y;
-	DirNode d;
+	VarLeaf v;
+	IntLeaf x;
+	IntLeaf y;
+	DirLeaf d;
 	
-	MouseNode(VarNode v, IntNode x, IntNode y, DirNode d) {
-		super("mouse_node");
+	public MouseNode(VarLeaf v, IntLeaf x, IntLeaf y, DirLeaf d) {
+		super(ASTNodeType.MOUSE_NODE);
 		this.v = v;
 		this.x = x;
 		this.y = y;
@@ -56,11 +64,11 @@ class MouseNode extends ASTNode {
 }
 
 class HoleNode extends ASTNode {
-	IntNode x;
-	IntNode y;
+	IntLeaf x;
+	IntLeaf y;
 	
-	HoleNode(IntNode x, IntNode y) {
-		super("hole_node");
+	public HoleNode(IntLeaf x, IntLeaf y) {
+		super(ASTNodeType.HOLE_NODE);
 		this.x = x;
 		this.y = y;
 	}
@@ -70,49 +78,49 @@ class SequenceNode extends ASTNode {
 	ASTNode left;
 	ASTNode right;
 	
-	SequenceNode(ASTNode left, ASTNode right) {
-		super("seq_node");
+	public SequenceNode(ASTNode left, ASTNode right) {
+		super(ASTNodeType.SEQUENCE_NODE);
 		this.left = left;
 		this.right = right;
 	}
 }
 
 class MoveNode extends ASTNode {
-	VarNode v;
-	IntNode i;
+	VarLeaf v;
+	IntLeaf i;
 	
-	MoveNode(VarNode v, IntNode i) {
-		super("move_node");
+	public MoveNode(VarLeaf v, IntLeaf i) {
+		super(ASTNodeType.MOVE_NODE);
 		this.v = v;
 		this.i = i;
 	}
 }
 
 class ClockwiseNode extends ASTNode {
-	VarNode v;
+	VarLeaf v;
 	
-	ClockwiseNode(VarNode v) {
-		super("clockwise_node");
+	public ClockwiseNode(VarLeaf v) {
+		super(ASTNodeType.CLOCKWISE_NODE);
 		this.v = v;
 	}
 }
 
 class RepeatNode extends ASTNode {
-	IntNode i;
+	IntLeaf i;
 	ASTNode list;
 	
-	RepeatNode(IntNode i, ASTNode list) {
-		super("repeat_node");
+	public RepeatNode(IntLeaf i, ASTNode list) {
+		super(ASTNodeType.REPEAT_NODE);
 		this.i = i;
 		this.list = list;
 	}
 }
 
-class IntNode extends ASTNode {
+class IntLeaf extends ASTNode {
 	Token intToken;
 	
-	IntNode(Token intToken) {
-		super("int_leaf");
+	public IntLeaf(Token intToken) {
+		super(ASTNodeType.INT_LEAF);
 		this.intToken = intToken;
 	}
 	
@@ -121,11 +129,11 @@ class IntNode extends ASTNode {
 	}
 }
 
-class VarNode extends ASTNode {
+class VarLeaf extends ASTNode {
 	Token varToken;
 	
-	VarNode(Token varToken) {
-		super("var_leaf");
+	public VarLeaf(Token varToken) {
+		super(ASTNodeType.VAR_LEAF);
 		this.varToken = varToken;
 	}
 	
@@ -134,11 +142,11 @@ class VarNode extends ASTNode {
 	}
 }
 
-class DirNode extends ASTNode {
+class DirLeaf extends ASTNode {
 	Direction dir;
 	
-	DirNode(Token dirToken) {
-		super("dir_leaf");
+	public DirLeaf(Token dirToken) {
+		super(ASTNodeType.DIR_LEAF);
 		switch (dirToken.getTokenType()) {
 			case NORTH:
 				this.dir = Direction.NORTH;

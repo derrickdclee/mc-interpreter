@@ -1,3 +1,7 @@
+/**
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ */
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -5,10 +9,14 @@ import java.util.Set;
 
 public class Grid {
 	
-	Spot[][] myGrid;
-	Map<String, Critter> myVarMap;
+	private Spot[][] myGrid;
+	private Map<String, Critter> myVarMap;
+	private int myHeight;
+	private int myWidth;
 	
 	public Grid(int height, int width) {
+		myHeight = height;
+		myWidth = width;
 		myGrid = new Spot[width][height]; // careful with the order
 		myVarMap = new HashMap<>();
 		
@@ -17,6 +25,22 @@ public class Grid {
 				myGrid[x][y] = new Spot();
 			}
 		}
+	}
+	
+	public Spot getSpot(int x, int y) {
+		return myGrid[x][y];
+	}
+	
+	public Map<String, Critter> getVarMap() {
+		return myVarMap;
+	}
+	
+	public int getHeight() {
+		return myHeight;
+	}
+	
+	public int getWidth() {
+		return myWidth;
 	}
 }
 

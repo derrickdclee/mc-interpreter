@@ -1,3 +1,8 @@
+/**
+ * 
+ * @author Derrick Lee <derrickdclee@gmail.com>
+ *
+ */
 
 public abstract class Critter {
 	private String name;
@@ -6,7 +11,7 @@ public abstract class Critter {
 	private Direction dir;
 	private boolean isAlive;
 	
-	public Critter(String name, int x, int y, DirNode dirNode) {
+	public Critter(String name, int x, int y, DirLeaf dirNode) {
 		this.name = name;
 		this.x = x;
 		this.y = y;
@@ -52,14 +57,13 @@ public abstract class Critter {
 }
 
 class Cat extends Critter {	
-	public Cat(String name, int x, int y, DirNode dirNode) {
+	public Cat(String name, int x, int y, DirLeaf dirNode) {
 		super(name, x, y, dirNode);
 	}
-	
 }
 
 class Mouse extends Critter {
-	public Mouse(String name, int x, int y, DirNode dirNode) {
+	public Mouse(String name, int x, int y, DirLeaf dirNode) {
 		super(name, x, y, dirNode);
 	}
 }

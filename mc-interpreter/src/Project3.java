@@ -3,6 +3,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Scanner;
 
+/*
+ * Please note that 
+ * 1) parsedata.txt must be in the directory ./parsedata/
+ * 2) Test cases must be in the directory ./tests/p3/
+ */
+
 public class Project3 {
 
 	public static void main(String[] args) {
@@ -25,7 +31,7 @@ public class Project3 {
 		try {
 			Parser parser = new Parser();
 			Iterator<Token> it = scanner.getIterator();
-			root = parser.parse(it); // if you wish to examine stack contents at each step
+			root = parser.parse(it);
 		} catch (InvalidTokenException e) {
 			e.printStackTrace();
 		} catch (ParsingException e) {

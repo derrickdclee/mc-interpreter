@@ -39,6 +39,13 @@ public class GridGraphic extends JFrame{
         }
 	}
 	
+	public void init() {
+		setSize(900,900);
+		setResizable(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+	
 	public void updateGraphic(Grid grid) {
 		for(int y=0; y<myHeight; y++) {
             for(int x=0; x<myWidth; x++) {

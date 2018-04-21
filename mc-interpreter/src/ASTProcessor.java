@@ -1,6 +1,4 @@
 
-import javax.swing.JFrame;
-
 /*
  * Rules:
  * 1. Any reference to a dead critter is invalid.
@@ -14,6 +12,7 @@ import javax.swing.JFrame;
  * -> kill the mouse
  * 6. Holes must be instantiated on an empty Spot.
  */
+
 public class ASTProcessor {
 	private Grid myGrid;
 	private GridGraphic myGraphic;
@@ -33,12 +32,9 @@ public class ASTProcessor {
 		myGrid = new Grid(height, width);
 		
 		myGraphic = new GridGraphic(height, width);
-        myGraphic.setSize(900,900);
-        myGraphic.setResizable(true);
-        myGraphic.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        myGraphic.setVisible(true);
-        
-        processNode(root.list);
+		myGraphic.init();
+		
+		processNode(root.list);
 	}
 	
 	private void processNode(ASTNode list) throws ASTTraversalException {

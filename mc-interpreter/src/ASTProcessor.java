@@ -1,3 +1,7 @@
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JFrame;
+
 /*
  * Rules:
  * 1. Any reference to a dead critter is invalid.
@@ -13,10 +17,20 @@
  */
 public class ASTProcessor {
 	private Grid myGrid;
+	private GridGraphic myGraphic;
 	
 	public void process(RootNode root) throws ASTTraversalException {
-		myGrid = new Grid(root.i.intToken.getIntVal(), root.j.intToken.getIntVal());
-		processNode(root.list);
+		int height = root.i.intToken.getIntVal();
+		int width = root.j.intToken.getIntVal();
+		myGrid = new Grid(height, width);
+		
+		myGraphic = new GridGraphic(height, width);
+        myGraphic.setSize(900,900);
+        myGraphic.setResizable(true);
+        myGraphic.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        myGraphic.setVisible(true);
+        
+        processNode(root.list);
 	}
 	
 	private void processNode(ASTNode list) throws ASTTraversalException {
@@ -77,6 +91,13 @@ public class ASTProcessor {
 				spot.put(c);
 			}
 		}
+		
+		myGraphic.updateGraphic(myGrid);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void processMouseNode(MouseNode node) throws ASTTraversalException {
@@ -109,6 +130,13 @@ public class ASTProcessor {
 				m.kill();
 			}
 		}
+		
+		myGraphic.updateGraphic(myGrid);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void processHoleNode(HoleNode node) throws ASTTraversalException {
@@ -116,11 +144,18 @@ public class ASTProcessor {
 		int y = node.y.intToken.getIntVal();
 		Spot spot = myGrid.myGrid[x][y];
 		
-		// throw exception if already has a hole or is occupied
+		// throw exception if Spot already has a hole or is occupied
 		if (spot.hasHole() || spot.isOccupied()) {
 			throw new ASTTraversalException("You cannot put a hole here.");
 		}
 		spot.makeHole();
+		
+		myGraphic.updateGraphic(myGrid);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void processSequenceNode(SequenceNode node) throws ASTTraversalException {
@@ -151,16 +186,16 @@ public class ASTProcessor {
 		// compute the new location
 		switch (dir) {
 			case NORTH:
-				x -= distance;
+				y -= distance;
 				break;
 			case SOUTH:
-				x += distance;
-				break;
-			case EAST:
 				y += distance;
 				break;
+			case EAST:
+				x += distance;
+				break;
 			case WEST:
-				y -= distance;
+				x -= distance;
 				break;
 		}
 		// validate this location
@@ -190,6 +225,7 @@ public class ASTProcessor {
 				} else {
 					occupant.kill();
 					newSpot.remove();
+					System.out.println("Fuck");
 					newSpot.put(critter);
 				}
 			}
@@ -208,6 +244,13 @@ public class ASTProcessor {
 		// update critter's location
 		critter.updateX(x);
 		critter.updateY(y);
+		
+		myGraphic.updateGraphic(myGrid);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void processClockwiseNode(ClockwiseNode node) throws ASTTraversalException {
@@ -240,6 +283,13 @@ public class ASTProcessor {
 				break;
 		}
 		critter.updateDir(newDir);
+		
+		myGraphic.updateGraphic(myGrid);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void processRepeatNode(RepeatNode node) throws ASTTraversalException {

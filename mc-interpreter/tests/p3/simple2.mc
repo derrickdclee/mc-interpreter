@@ -1,4 +1,4 @@
-size 30 40
+size 10 12
 begin
 	cat derrick 5 5 east ;
 	mouse chloe 7 7 east ;

@@ -3,7 +3,7 @@
  * @author Derrick Lee <derrickdclee@gmail.com>
  */
 
-public enum Type {
+public enum TokenType {
 		VARIABLE, 
 		INTEGER, 
 		BEGIN, 

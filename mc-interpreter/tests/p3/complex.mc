@@ -26,11 +26,11 @@ begin
 	mouse tim 2 2 east ;
 	mouse tony 4 4 east ;
 	mouse ron 23 23 west ;
-	mouse mark 17 17 west ;
+	mouse mark 20 20 west ;
 	
 	
 	//get the mice to the center and make the cats patrol around
-	repeat 13
+	repeat 5
 		
 		//move cats across one edge of square
 		repeat 2

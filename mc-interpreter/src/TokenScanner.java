@@ -61,7 +61,7 @@ public class TokenScanner implements Iterable<Token> {
 			processLine(line, lineNum);
 			lineNum++;
 		}
-		addToTokenCollection(new Token(Type.EOF, null, null)); // adding end of file marker
+		addToTokenCollection(new Token(TokenType.EOF, null, null)); // adding end of file marker
 		bufferedReader.close();
 	}
 	
@@ -103,7 +103,7 @@ public class TokenScanner implements Iterable<Token> {
 				break;
 			}
 
-			Type tokenType = determineType(loWord);
+			TokenType tokenType = determineType(loWord);
 			Token result = null;
 		
 			if (tokenType != null) {
@@ -128,7 +128,7 @@ public class TokenScanner implements Iterable<Token> {
 	 * @return 		Token object if the string is inserted into the table or
 	 * 				is already present in the table; null otherwise
 	 */
-	private Token addToSymbolTable(String str, Type tokenType) {
+	private Token addToSymbolTable(String str, TokenType tokenType) {
 		if (mySymbolTable.containsKey(str)) {
 			return mySymbolTable.get(str);
 		}
@@ -137,10 +137,10 @@ public class TokenScanner implements Iterable<Token> {
 
 		if (tokenType == null) {
 			return result;
-		} else if (tokenType == Type.INTEGER) {
+		} else if (tokenType == TokenType.INTEGER) {
 			result = new Token(tokenType, str, Integer.parseInt(str));
 			mySymbolTable.put(str, result);
-		} else if (tokenType == Type.VARIABLE) {
+		} else if (tokenType == TokenType.VARIABLE) {
 			result = new Token(tokenType, str, 0);
 			mySymbolTable.put(str, result);
 		} else {
@@ -174,7 +174,7 @@ public class TokenScanner implements Iterable<Token> {
 	 * @param str	string to be tested
 	 * @return		the Type enum associated with the string; null if invalid token
 	 */
-	private Type determineType(String str) {
+	private TokenType determineType(String str) {
 		/*
 		 * What cases are there?
 		 * 1. Keyword
@@ -185,31 +185,31 @@ public class TokenScanner implements Iterable<Token> {
 		 * 5. Invalid token
 		 */
 		if (isKeyword(str)) {
-			Type type = null;
+			TokenType type = null;
 			switch (str) {
-				case "begin": type = Type.BEGIN; break;
-				case "halt" : type = Type.HALT; break;
-				case "cat": type = Type.CAT; break;
-				case "mouse": type = Type.MOUSE; break;
-				case "clockwise": type = Type.CLOCKWISE; break;
-				case "move": type = Type.MOVE; break;
-				case "north": type = Type.NORTH; break;
-				case "south": type = Type.SOUTH; break;
-				case "east": type = Type.EAST; break;
-				case "west": type = Type.WEST; break;
-				case "hole": type = Type.HOLE; break;
-				case "repeat": type = Type.REPEAT; break;
-				case "size": type = Type.SIZE; break;
-				case "end": type = Type.END; break;
+				case "begin": type = TokenType.BEGIN; break;
+				case "halt" : type = TokenType.HALT; break;
+				case "cat": type = TokenType.CAT; break;
+				case "mouse": type = TokenType.MOUSE; break;
+				case "clockwise": type = TokenType.CLOCKWISE; break;
+				case "move": type = TokenType.MOVE; break;
+				case "north": type = TokenType.NORTH; break;
+				case "south": type = TokenType.SOUTH; break;
+				case "east": type = TokenType.EAST; break;
+				case "west": type = TokenType.WEST; break;
+				case "hole": type = TokenType.HOLE; break;
+				case "repeat": type = TokenType.REPEAT; break;
+				case "size": type = TokenType.SIZE; break;
+				case "end": type = TokenType.END; break;
 			}
 			return type;
 		} else if ( str.length() <= 3 && str.matches("[1-9]\\d*|0") ) {
-			return Type.INTEGER;
+			return TokenType.INTEGER;
 		} else if ( (str.length() <= 3 && str.matches("[0-9]*[a-zA-Z][a-zA-Z0-9]*")) ||
 					(str.length() > 3 && str.matches("[a-zA-Z0-9]+")) ) {
-			return Type.VARIABLE;
+			return TokenType.VARIABLE;
 		} else if ( str.equals(";") ) {
-			return Type.SEMICOLON;
+			return TokenType.SEMICOLON;
 		}
 
 		return null;

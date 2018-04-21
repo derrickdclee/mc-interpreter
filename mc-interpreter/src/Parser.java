@@ -143,14 +143,14 @@ public class Parser {
 	}
 	
 	private void addIfLeafNode(Token token) {
-		Type tokenType = token.getTokenType();
+		TokenType tokenType = token.getTokenType();
 		
-		if (tokenType == Type.INTEGER) {
+		if (tokenType == TokenType.INTEGER) {
 			myASTStack.addLast(new IntNode(token));
-		} else if (tokenType == Type.VARIABLE) {
+		} else if (tokenType == TokenType.VARIABLE) {
 			myASTStack.addLast(new VarNode(token));
-		} else if (tokenType == Type.NORTH || tokenType == Type.SOUTH 
-				|| tokenType == Type.EAST || tokenType == Type.WEST) {
+		} else if (tokenType == TokenType.NORTH || tokenType == TokenType.SOUTH 
+				|| tokenType == TokenType.EAST || tokenType == TokenType.WEST) {
 			myASTStack.addLast(new DirNode(token));
 		}
 	}
@@ -194,7 +194,7 @@ public class Parser {
 			}
 			case 7: {
 				VarNode v = (VarNode) myASTStack.removeLast();
-				IntNode i = new IntNode(new Token(Type.INTEGER, "1", 1));
+				IntNode i = new IntNode(new Token(TokenType.INTEGER, "1", 1));
 				myASTStack.addLast(new MoveNode(v, i));
 				break;
 			}

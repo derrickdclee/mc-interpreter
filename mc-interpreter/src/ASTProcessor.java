@@ -17,6 +17,15 @@ import javax.swing.JFrame;
 public class ASTProcessor {
 	private Grid myGrid;
 	private GridGraphic myGraphic;
+	private int WAIT_NUM_MS; // default is 500
+	
+	public ASTProcessor() {
+		this(500);
+	}
+	
+	public ASTProcessor(int ms) {
+		WAIT_NUM_MS = ms;
+	}
 	
 	public void process(RootNode root) throws ASTTraversalException {
 		int height = root.i.intToken.getIntVal();
@@ -93,7 +102,7 @@ public class ASTProcessor {
 		
 		myGraphic.updateGraphic(myGrid);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(WAIT_NUM_MS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -132,7 +141,7 @@ public class ASTProcessor {
 		
 		myGraphic.updateGraphic(myGrid);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(WAIT_NUM_MS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -151,7 +160,7 @@ public class ASTProcessor {
 		
 		myGraphic.updateGraphic(myGrid);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(WAIT_NUM_MS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -245,7 +254,7 @@ public class ASTProcessor {
 		
 		myGraphic.updateGraphic(myGrid);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(WAIT_NUM_MS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -284,7 +293,7 @@ public class ASTProcessor {
 		
 		myGraphic.updateGraphic(myGrid);
 		try {
-			Thread.sleep(500);
+			Thread.sleep(WAIT_NUM_MS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

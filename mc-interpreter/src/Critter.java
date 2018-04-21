@@ -14,6 +14,10 @@ public abstract class Critter {
 		this.dir = dirNode.dir;
 	}
 	
+	public String getName() {
+		return this.name;
+	}
+	
 	public int getX() {
 		return this.x;
 	}

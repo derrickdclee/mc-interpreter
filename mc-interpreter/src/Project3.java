@@ -41,6 +41,7 @@ public class Project3 {
 		try {
 			ASTProcessor processor = new ASTProcessor();
 			processor.process((RootNode) root);
+			System.out.println("Simulation completed!");
 		} catch (ASTTraversalException e) {
 			e.printStackTrace();
 		}

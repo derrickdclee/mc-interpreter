@@ -40,8 +40,6 @@ public class GridGraphic extends JFrame{
 	}
 	
 	public void updateGraphic(Grid grid) {
-		setVisible(false);
-		
 		for(int y=0; y<myHeight; y++) {
             for(int x=0; x<myWidth; x++) {
             	
@@ -49,7 +47,6 @@ public class GridGraphic extends JFrame{
             		squares[y][x].removeAll();
                 if (spot.isOccupied()) {
                 		Critter occupant = spot.getOccupant();
-                		System.out.println(occupant.toString());
                 		if (occupant instanceof Cat) {
                 			addPiece(CAT_PATH, y, x);
                 		} else {
@@ -63,8 +60,8 @@ public class GridGraphic extends JFrame{
                 
             }
         }
-		
-		setVisible(true);
+		revalidate();
+		repaint();
 	}
 	
 	public void addPiece(String filepath, int i, int j) {

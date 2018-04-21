@@ -1,4 +1,3 @@
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 
@@ -225,7 +224,6 @@ public class ASTProcessor {
 				} else {
 					occupant.kill();
 					newSpot.remove();
-					System.out.println("Fuck");
 					newSpot.put(critter);
 				}
 			}

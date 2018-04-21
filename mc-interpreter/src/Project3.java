@@ -7,6 +7,7 @@ import java.util.Scanner;
  * Please note that 
  * 1) parsedata.txt must be in the directory ./parsedata/
  * 2) Test cases must be in the directory ./tests/p3/
+ * 3) The three images uploaded must be in the directory ./images/
  */
 
 public class Project3 {

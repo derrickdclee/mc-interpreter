@@ -28,15 +28,15 @@ public class GridGraphic extends JFrame{
 		myWidth = width;
 		
 		Container c = getContentPane();
-        c.setLayout(new GridLayout(height, width, 1 , 1)); 
-        squares = new JPanel[height][width];
-        for(int i=0; i<height; i++) {
-            for(int j=0; j<width; j++) {
-                squares[i][j] = new JPanel();
-                squares[i][j].setBackground(Color.white);
-                c.add(squares[i][j]);
-            }
-        }
+		c.setLayout(new GridLayout(height, width, 1 , 1));
+		squares = new JPanel[height][width];
+		for (int i=0; i<height; i++) {
+			for (int j=0; j<width; j++) {
+				squares[i][j] = new JPanel();
+				squares[i][j].setBackground(Color.white);
+				c.add(squares[i][j]);
+			}
+		}
 	}
 	
 	public void init() {
@@ -48,23 +48,22 @@ public class GridGraphic extends JFrame{
 	
 	public void updateGraphic(Grid grid) {
 		for(int y=0; y<myHeight; y++) {
-            for(int x=0; x<myWidth; x++) {
-            	
-            		Spot spot = grid.myGrid[x][y];
-            		squares[y][x].removeAll();
-                if (spot.isOccupied()) {
-                		Critter occupant = spot.getOccupant();
-                		if (occupant instanceof Cat) {
-                			addPiece(CAT_PATH, y, x);
-                		} else {
-                			addPiece(MOUSE_PATH, y, x);
-                		}
+			for(int x=0; x<myWidth; x++) {
+				Spot spot = grid.myGrid[x][y];
+				squares[y][x].removeAll();
+				
+				if (spot.isOccupied()) {
+					Critter occupant = spot.getOccupant();
+                	if (occupant instanceof Cat) {
+                		addPiece(CAT_PATH, y, x);
+                	} else {
+                		addPiece(MOUSE_PATH, y, x);
+                	}
                 } else {
-                		if (spot.hasHole()) {
-                			addPiece(HOLE_PATH, y, x);
-                		}
+                	if (spot.hasHole()) {
+                		addPiece(HOLE_PATH, y, x);
+                	}
                 }
-                
             }
         }
 		revalidate();
@@ -73,10 +72,10 @@ public class GridGraphic extends JFrame{
 	
 	public void addPiece(String filepath, int i, int j) {
 		File file = new File(filepath);
-		ImageIcon img = new ImageIcon(new ImageIcon(
-				file.getAbsolutePath()).getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));      
-		JLabel label = new JLabel("", img, SwingConstants.CENTER); 
-        squares[i][j].add(label, BorderLayout.CENTER);
+		ImageIcon img = new ImageIcon(new ImageIcon(file.getAbsolutePath()).getImage().
+				getScaledInstance(20, 20, Image.SCALE_SMOOTH));      
+		JLabel label = new JLabel("", img, SwingConstants.CENTER);
+		squares[i][j].add(label, BorderLayout.CENTER);
     }
 	
 }

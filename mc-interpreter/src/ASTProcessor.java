@@ -16,10 +16,10 @@
 public class ASTProcessor {
 	private Grid myGrid;
 	private GridGraphic myGraphic;
-	private int WAIT_NUM_MS; // default is 500
+	private int WAIT_NUM_MS; // default is 400
 	
 	public ASTProcessor() {
-		this(500);
+		this(400);
 	}
 	
 	public ASTProcessor(int ms) {

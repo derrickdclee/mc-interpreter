@@ -14,10 +14,6 @@ public abstract class Critter {
 		this.dir = dirNode.dir;
 	}
 	
-	public Direction getDir() {
-		return this.dir;
-	}
-	
 	public int getX() {
 		return this.x;
 	}
@@ -26,12 +22,28 @@ public abstract class Critter {
 		return this.y;
 	}
 	
-	public void setX(int newX) {
+	public Direction getDir() {
+		return this.dir;
+	}
+	
+	public void updateX(int newX) {
 		this.x = newX;
 	}
 	
-	public void setY(int newY) {
+	public void updateY(int newY) {
 		this.y = newY;
+	}
+	
+	public void updateDir(Direction newDir) {
+		this.dir = newDir;
+	}
+	
+	public void kill() {
+		this.isAlive = false;
+	}
+	
+	public boolean isAlive() {
+		return this.isAlive;
 	}
 }
 

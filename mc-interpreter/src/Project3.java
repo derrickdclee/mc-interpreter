@@ -12,21 +12,32 @@ public class Project3 {
 		File f = new File("./tests/p3/" + fileName);
 		sc.close();
 		
+		TokenScanner scanner = null;
 		try {
-			TokenScanner scanner = new TokenScanner();
+			scanner = new TokenScanner();
 			scanner.scanInputProgram(f);
 			System.out.println("==================================");
-			
-			Parser parser = new Parser();
-			Iterator<Token> it = scanner.getIterator();
-			ASTNode root = parser.parse(it); // if you wish to examine stack contents at each step
 		} catch (IOException e) {
 			e.printStackTrace();
+		} 
+		
+		ASTNode root = null;
+		try {
+			Parser parser = new Parser();
+			Iterator<Token> it = scanner.getIterator();
+			root = parser.parse(it); // if you wish to examine stack contents at each step
 		} catch (InvalidTokenException e) {
 			e.printStackTrace();
 		} catch (ParsingException e) {
 			e.printStackTrace();
 		} 
+		
+		try {
+			ASTProcessor processor = new ASTProcessor();
+			processor.process((RootNode) root);
+		} catch (ASTTraversalException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

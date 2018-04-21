@@ -42,27 +42,27 @@ class CatNode extends ASTNode {
 
 class MouseNode extends ASTNode {
 	VarNode v;
-	IntNode i;
-	IntNode j;
+	IntNode x;
+	IntNode y;
 	DirNode d;
 	
-	MouseNode(VarNode v, IntNode i, IntNode j, DirNode d) {
+	MouseNode(VarNode v, IntNode x, IntNode y, DirNode d) {
 		super("mouse_node");
 		this.v = v;
-		this.i = i;
-		this.j = j;
+		this.x = x;
+		this.y = y;
 		this.d = d;
 	}
 }
 
 class HoleNode extends ASTNode {
-	IntNode i;
-	IntNode j;
+	IntNode x;
+	IntNode y;
 	
-	HoleNode(IntNode i, IntNode j) {
+	HoleNode(IntNode x, IntNode y) {
 		super("hole_node");
-		this.i = i;
-		this.j = j;
+		this.x = x;
+		this.y = y;
 	}
 }
 
